@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Industry Idle: Expanded</title>
+<title>Industry Idle: Persistence</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -57,7 +57,6 @@ html,body{height:100%;background:#050a10;color:#a0b8cc;font-family:'Inter',syste
 .sl{color:#6c8ca8;font-weight:600}
 .abtn{display:block;width:100%;padding:10px;border-radius:6px;border:1px solid;cursor:pointer;font-size:12px;font-weight:700;text-align:center;margin:6px 0;transition:all .15s;line-height:1.4;text-transform:uppercase;letter-spacing:0.5px}
 .abtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
-.abtn:active{transform:translateY(0)}
 .ubtn{background:linear-gradient(to bottom, #102a14, #0a1a0c);border-color:#2a5024;color:#60c840}
 .ubtn:hover{border-color:#3a7034;color:#70e850}
 .dbtn{background:linear-gradient(to bottom, #2a1414, #1a0a0a);border-color:#502424;color:#e85050;margin-top:10px}
@@ -164,7 +163,6 @@ for (let row = 0; row < GROWS; row++)
     HC[`${col},${row}`] = hcen(col, row);
 
 function s2h(sx, sy) {
-  // Convert screen coordinates to world coordinates based on zoom
   const wx = (sx / cam.z) + cam.x;
   const wy = (sy / cam.z) + cam.y;
   let best = null, bst = (HR * 1.4) * (HR * 1.4);
@@ -274,7 +272,7 @@ const RESEARCH = [
   { id:'quantum', n:'Quantum Tech',   cost:35000,desc:'Unlocks Quantum Lab (Processor + Gold Wire → Q-Chip)', req:['compute'] },
 ];
 
-// ═══════════════════════════════════════════════════════ STATE
+// ═══════════════════════════════════════════════════════ STATE & PERSISTENCE
 const fmt = n => n >= 1e9 ? (n/1e9).toFixed(2)+'B' : n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : Math.floor(n)+'';
 const fmtR = n => Math.abs(n) < 0.05 ? '' : (n > 0 ? '+' : '') + n.toFixed(1) + '/s';
 
@@ -285,16 +283,55 @@ let G = {
   power: { gen: 0, con: 0 },
   research: [],
   tick: 0,
-  totalEarned: 0,
 };
 
-let cam     = { x: 0, y: 0, z: 1.0 }; // Added zoom level
+// 💾 SAVE FUNCTION
+function saveGame() {
+    const data = JSON.stringify({
+        money: G.money,
+        res: G.res,
+        grid: G.grid,
+        research: G.research,
+        tick: G.tick
+    });
+    localStorage.setItem('industry_idle_save', data);
+    addLog('💾 Game Auto-saved');
+}
+
+// 📂 LOAD FUNCTION
+function loadGame() {
+    const raw = localStorage.getItem('industry_idle_save');
+    if (!raw) return false;
+    try {
+        const saved = JSON.parse(raw);
+        G.money = saved.money ?? 1500;
+        G.res = saved.res ?? G.res;
+        G.grid = saved.grid ?? {};
+        G.research = saved.research ?? [];
+        G.tick = saved.tick ?? 0;
+        addLog('📂 Progress loaded from local storage');
+        return true;
+    } catch(e) {
+        console.error("Load failed", e);
+        return false;
+    }
+}
+
+// 🔥 RESET FUNCTION
+function resetGame() {
+    if (confirm("Are you sure? This will delete all progress permanently!")) {
+        localStorage.removeItem('industry_idle_save');
+        location.reload();
+    }
+}
+
+let cam     = { x: 0, y: 0, z: 1.0 };
 let placing = null;
 let selKey  = null;
 let activeTab = 'build';
 let glog    = [];
 let parts   = [];
-let fx      = []; // New effects array for placement shockwaves
+let fx      = [];
 let dragSt  = null;
 let animT   = 0;
 
@@ -361,6 +398,10 @@ function gameTick() {
     }
   }
   G.tick++;
+  
+  // Auto-save every 30 seconds
+  if (G.tick % 30 === 0) saveGame();
+  
   updateUI();
 }
 
@@ -378,12 +419,10 @@ function drawFrame(t) {
   animT = t;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Apply Camera Transform (Zoom and Pan)
   ctx.save();
   ctx.scale(cam.z, cam.z);
   ctx.translate(-cam.x, -cam.y);
 
-  // Background grid dots
   ctx.fillStyle = 'rgba(100, 150, 255, 0.05)';
   const viewW = canvas.width / cam.z;
   const viewH = canvas.height / cam.z;
@@ -398,45 +437,37 @@ function drawFrame(t) {
 
   const pbData = placing ? BLDGS[placing] : null;
   
-  // Render Hexes (with Zoom culling)
   for (const [key, { x: wx, y: wy }] of Object.entries(HC)) {
     if (wx < cam.x - HR * 2 || wx > cam.x + viewW + HR * 2 || 
         wy < cam.y - HR * 2 || wy > cam.y + viewH + HR * 2) continue;
     drawHex(key, wx, wy, pbData, t);
   }
 
-  // Render Visual Effects (Shockwaves)
   for (let i = fx.length - 1; i >= 0; i--) {
     const e = fx[i];
     const prog = e.life / e.max;
-    
     ctx.beginPath();
     ctx.arc(e.wx, e.wy, HR * (prog * 1.5 + 0.5), 0, 6.28);
     ctx.strokeStyle = `rgba(100, 255, 100, ${1 - prog})`;
     ctx.lineWidth = 6 * (1 - prog);
     ctx.stroke();
-
     e.life++;
     if (e.life > e.max) fx.splice(i, 1);
   }
 
-  // Render Particles
   for (let i = parts.length - 1; i >= 0; i--) {
     const p = parts[i];
     const alpha = (p.life / p.max);
-    
     ctx.globalAlpha = alpha * 0.5;
     ctx.fillStyle = p.col;
     ctx.beginPath(); ctx.arc(p.wx, p.wy, 4, 0, 6.28); ctx.fill();
-
     ctx.globalAlpha = alpha;
     ctx.beginPath(); ctx.arc(p.wx, p.wy, 1.5, 0, 6.28); ctx.fill();
-    
     p.wx += p.vx; p.wy += p.vy; p.vy *= 0.95; p.vx *= 0.95; p.life--;
     if (p.life <= 0) parts.splice(i, 1);
   }
   
-  ctx.restore(); // Restore context to screen coordinates
+  ctx.restore();
   requestAnimationFrame(drawFrame);
 }
 
@@ -449,12 +480,10 @@ function drawHex(key, wx, wy, pbData, t) {
   ctx.save();
   ctx.translate(wx, wy);
 
-  // Hex fill
   hexPath(ctx, HR - 2);
   ctx.fillStyle = dep ? 'rgba(20,45,75,0.7)' : 'rgba(10,25,45,0.4)';
   ctx.fill();
 
-  // Glowing borders
   hexPath(ctx, HR - 2);
   ctx.strokeStyle = isSel ? '#f0d050' : canPlace ? '#38e050' : dep ? 'rgba(60,110,160,0.6)' : 'rgba(30,60,95,0.3)';
   ctx.lineWidth   = isSel ? 3 : canPlace ? 2 : 1;
@@ -465,7 +494,6 @@ function drawHex(key, wx, wy, pbData, t) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Valid placement highlight pulse
   if (canPlace) {
     const pulse = (Math.sin(t * 0.005) + 1) * 0.5;
     hexPath(ctx, HR - 3);
@@ -473,7 +501,6 @@ function drawHex(key, wx, wy, pbData, t) {
     ctx.fill();
   }
 
-  // Deposit label
   if (dep && !cell) {
     const rv = RES[dep];
     ctx.shadowColor = rv.col;
@@ -486,28 +513,21 @@ function drawHex(key, wx, wy, pbData, t) {
     ctx.shadowBlur = 0;
   }
 
-  // Building
   if (cell) {
     const bd = BLDGS[cell.id];
     const lv = cell.lv || 1;
-    const { gen, con } = G.power;
-    const active = bd.pw > 0 || gen >= con;
+    const active = bd.pw > 0 || (G.power.gen >= G.power.con);
     const bcol   = BCOL[cell.id] || '#283848';
     const cr     = Math.round(HR * 0.65);
 
-    // PLACEMENT ANIMATION (Bounce effect)
     let bScale = 1;
     if (cell.placedAt) {
         const age = Date.now() - cell.placedAt;
         if (age < 400) {
             const p = age / 400;
-            // Elastic ease out
             bScale = 1 + Math.sin(p * Math.PI * 3) * Math.exp(-p * 6) * 0.5;
-        } else {
-            delete cell.placedAt;
-        }
+        } else { delete cell.placedAt; }
     }
-    
     ctx.scale(bScale, bScale);
 
     if (isSel) {
@@ -516,32 +536,25 @@ function drawHex(key, wx, wy, pbData, t) {
       ctx.shadowBlur  = 15 + gv * 10;
     }
 
-    // Building Base
     ctx.beginPath(); ctx.arc(0, 0, cr, 0, 6.28);
     const bg = ctx.createLinearGradient(0, -cr, 0, cr);
     bg.addColorStop(0, bcol);
     bg.addColorStop(1, '#050a10');
     ctx.fillStyle = bg; ctx.fill();
 
-    // Inner Glow
     const g = ctx.createRadialGradient(-cr*0.3, -cr*0.3, 0, 0, 0, cr);
     g.addColorStop(0, 'rgba(255,255,255,0.25)');
     g.addColorStop(1, 'rgba(0,0,0,0.4)');
     ctx.fillStyle = g; ctx.fill();
 
-    if (isSel) ctx.shadowBlur = 0;
-
-    // Circle border
     ctx.beginPath(); ctx.arc(0, 0, cr, 0, 6.28);
     ctx.strokeStyle = active ? 'rgba(150,220,255,0.4)' : 'rgba(250,80,80,0.6)';
     ctx.lineWidth = 2; ctx.stroke();
 
-    // Icon
     ctx.font = `${Math.round(cr * 1.1)}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(bd.ic, 0, 1);
 
-    // Level indicator
     if (lv > 1) {
       const bx = cr * 0.7, by = -cr * 0.7;
       ctx.fillStyle = '#0a1524';
@@ -552,14 +565,12 @@ function drawHex(key, wx, wy, pbData, t) {
       ctx.fillText(lv, bx, by+1);
     }
 
-    // Status dot
     ctx.shadowColor = active ? '#38f060' : '#f03838';
     ctx.shadowBlur = 6;
     ctx.beginPath(); ctx.arc(cr - 4, -cr + 4, 3.5, 0, 6.28);
     ctx.fillStyle = active ? '#38f060' : '#f03838'; ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Rate label
     if (bd.pro.length > 0) {
       const rate = bd.pro[0].a * lv;
       const rr = RES[bd.pro[0].r];
@@ -586,7 +597,6 @@ cw.addEventListener('mousedown', e => {
 });
 window.addEventListener('mousemove', e => {
   if (!dragSt) return;
-  // Account for zoom level when panning!
   const dx = (e.clientX - dragSt.ox) / cam.z; 
   const dy = (e.clientY - dragSt.oy) / cam.z;
   if (Math.abs(dx) + Math.abs(dy) > 4) dragSt.moved = true;
@@ -603,24 +613,17 @@ window.addEventListener('mouseup', e => {
   cw.classList.remove('dragging');
 });
 
-// SCROLL TO ZOOM
 cw.addEventListener('wheel', e => {
   e.preventDefault();
-  
   const zoomSpeed = 0.0015;
   const prevZ = cam.z;
-  
   cam.z -= e.deltaY * zoomSpeed;
-  cam.z = Math.max(0.4, Math.min(2.5, cam.z)); // Zoom bounds
-
-  // Math to ensure we zoom IN on the exact spot the mouse is hovering over
+  cam.z = Math.max(0.4, Math.min(2.5, cam.z));
   const r = canvas.getBoundingClientRect();
   const mx = e.clientX - r.left;
   const my = e.clientY - r.top;
-
   cam.x += (mx / prevZ) - (mx / cam.z);
   cam.y += (my / prevZ) - (my / cam.z);
-
   clampCam();
 }, { passive: false });
 
@@ -638,7 +641,6 @@ function clampCam() {
   const worldH = GROWS * HHS + HR * 2.5;
   const viewW = canvas.width / cam.z;
   const viewH = canvas.height / cam.z;
-  
   cam.x = Math.max(-viewW/2, Math.min(cam.x, worldW - viewW/2));
   cam.y = Math.max(-viewH/2, Math.min(cam.y, worldH - viewH/2));
 }
@@ -653,17 +655,13 @@ function onHexClick(col, row, key) {
     const cost = bldCost(placing);
     if (G.money < cost)           { addLog(`⚠️ Need $${fmt(cost)}`); return; }
     
-    // Build it and mark creation time for animation
     G.grid[key] = { id: placing, lv: 1, placedAt: Date.now() };
     G.money -= cost;
     addLog(`✅ Built ${pb.name}`);
 
-    // PLACEMENT FX: Shockwave + Particle Burst
     const wx = HC[key].x;
     const wy = HC[key].y;
-    fx.push({ wx, wy, life: 0, max: 25 }); // Add shockwave
-    
-    // Add sparks
+    fx.push({ wx, wy, life: 0, max: 25 });
     for(let i=0; i<15; i++) {
         parts.push({
             wx, wy,
@@ -674,8 +672,8 @@ function onHexClick(col, row, key) {
             max: 40
         });
     }
-
     updateUI();
+    saveGame(); // Save on build
   } else {
     selKey = selKey === key ? null : key;
     updateUI();
@@ -710,7 +708,6 @@ function updateUI() {
   const pe = document.getElementById('hdr-pw');
   pe.textContent = `${pw.gen}/${pw.con} MW`;
   pe.style.color = pw.gen >= pw.con ? '#38d850' : '#f04c4c';
-  pe.style.textShadow = pw.gen >= pw.con ? '0 0 8px rgba(56,216,80,0.4)' : '0 0 8px rgba(240,76,76,0.4)';
 
   const rates = calcRates();
   let rhtml = '';
@@ -749,18 +746,12 @@ function renderPalette(el) {
       const cost   = bldCost(id);
       const canA   = G.money >= cost;
       const active = placing === id;
-      
-      let tags = '';
-      b.pro.forEach(p => tags += `<span class="bsub-tag">out: ${RES[p.r].abbr}</span>`);
-      if(b.pw) tags += `<span class="bsub-tag" style="color:${b.pw>0?'#38d850':'#f04c4c'}">${b.pw>0?'+':''}${b.pw}MW</span>`;
-
       h += `<div class="bcard ${active ? 'act' : ''} ${locked ? 'blk' : ''}" onclick="${locked ? '' : `startPlace('${id}')`}">
         <div class="btop">
           <span class="bic">${b.ic}</span>
           <span class="bn">${b.name}${locked ? ' 🔒' : ''}</span>
           <span class="bcs" style="color:${locked ? '#4a6a8a' : canA ? '#f5d04c' : '#a04040'}">${locked ? 'Locked' : '$' + fmt(cost)}</span>
         </div>
-        <div class="bsub">${tags}</div>
       </div>`;
     });
   }
@@ -769,38 +760,29 @@ function renderPalette(el) {
 
 function renderSelPanel(el, key, cell, bd) {
   const lv = cell.lv || 1;
-  const { gen, con } = G.power;
-  const active = bd.pw > 0 || gen >= con;
-  const uc     = Math.floor(bd.cost * lv * 2.5);
+  const uc = Math.floor(bd.cost * lv * 2.5);
   el.innerHTML = `
     <div class="selhdr">
-      <span style="font-size:28px;filter:drop-shadow(0 0 10px rgba(255,255,255,0.2))">${bd.ic}</span>
+      <span style="font-size:28px">${bd.ic}</span>
       <div>
-        <div style="font-size:15px;font-weight:800;color:#e0eefc;letter-spacing:0.5px">${bd.name}</div>
-        <div style="font-size:11px;color:#7ca0c4;margin-top:4px;font-weight:600">Level ${lv} &nbsp;·&nbsp; <span style="color:${active ? '#38d850' : '#f04c4c'};text-shadow:0 0 5px currentColor">${active ? 'Working' : 'Idle — No Power'}</span></div>
+        <div style="font-size:15px;font-weight:800;color:#e0eefc">${bd.name}</div>
+        <div style="font-size:11px;color:#7ca0c4">Level ${lv}</div>
       </div>
     </div>
-    <div class="sr"><span class="sl">Power</span><span style="color:${bd.pw < 0 ? '#f04c4c' : '#38d850'};font-family:'JetBrains Mono',monospace">${bd.pw > 0 ? '+' : ''}${bd.pw * lv} MW</span></div>
-    ${bd.pro.map(p => `<div class="sr"><span class="sl" style="color:#50a050">Produces</span><span style="color:${RES[p.r].col};font-family:'JetBrains Mono',monospace">+${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
-    ${bd.con.map(p => `<div class="sr"><span class="sl" style="color:#a05050">Consumes</span><span style="color:#e06060;font-family:'JetBrains Mono',monospace">−${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
-    
-    <div style="margin-top:15px">
-      <button class="abtn ubtn" onclick="upgBld('${key}')">⬆ Upgrade to Lvl ${lv + 1}<br><span style="font-size:10px;font-family:'JetBrains Mono';opacity:.8">$${fmt(uc)}</span></button>
-      <button class="abtn dbtn" onclick="demBld('${key}')">↩ Demolish<br><span style="font-size:10px;opacity:.8">50% refund</span></button>
-      <button class="abtn" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);color:#8ca0b4;margin-top:15px" onclick="selKey=null;renderContent()">← Back</button>
-    </div>`;
+    <button class="abtn ubtn" onclick="upgBld('${key}')">⬆ Upgrade ($${fmt(uc)})</button>
+    <button class="abtn dbtn" onclick="demBld('${key}')">↩ Demolish (50% Refund)</button>`;
 }
 
 function renderMarketPanel(el) {
   let h = '';
   for (const [r, rv] of Object.entries(RES)) {
     const a = G.res[r] || 0;
+    if (a < 1) continue;
     h += `<div class="mrow">
-      <div class="mdot" style="background:${rv.col};box-shadow:0 0 6px ${rv.col}"></div>
+      <div class="mdot" style="background:${rv.col}"></div>
       <span class="mn">${rv.name}</span>
       <span class="ma">${fmt(a)}</span>
-      <span class="mp">$${rv.sell}/ea</span>
-      <button class="mbtn" ${a < 1 ? 'disabled' : ''} onclick="doSell('${r}')">Sell</button>
+      <button class="mbtn" onclick="doSell('${r}')">Sell $${rv.sell}</button>
     </div>`;
   }
   h += `<button class="sabtn" onclick="sellAll()">💰 SELL ALL RESOURCES</button>`;
@@ -810,77 +792,67 @@ function renderMarketPanel(el) {
 function renderResearchPanel(el) {
   let h = '';
   RESEARCH.forEach(rt => {
-    const done   = G.research.includes(rt.id);
+    const done = G.research.includes(rt.id);
     const locked = rt.req && rt.req.some(r => !G.research.includes(r));
-    const canA   = G.money >= rt.cost;
     h += `<div class="rcard ${done ? 'rdone' : ''} ${locked ? 'rlk' : ''}">
       <div class="rn">${rt.n}</div>
       <div class="rd">${rt.desc}</div>
-      ${done ? '<div style="color:#38d850;font-size:11px;font-weight:700">✓ Completed</div>'
-             : `<button class="rbtn" ${locked || !canA ? 'disabled' : ''} onclick="doResearch('${rt.id}')">Research - $${fmt(rt.cost)}</button>`}
+      ${done ? '✓ Completed' : `<button class="rbtn" ${locked || G.money < rt.cost ? 'disabled' : ''} onclick="doResearch('${rt.id}')">$${fmt(rt.cost)}</button>`}
     </div>`;
   });
   el.innerHTML = h;
 }
 
 function renderLogPanel(el) {
-  el.innerHTML = glog.length
-    ? glog.map(l => `<div class="le">${l.msg}</div>`).join('')
-    : '<div class="le" style="color:#4a6a8a;border-left-color:transparent">No events yet. Start building!</div>';
+  let h = `
+    <div class="sechdr">Settings</div>
+    <button class="abtn" style="background:#1a2a40; border-color:#2a4060; color:#88c0f0" onclick="saveGame()">💾 Manual Save</button>
+    <button class="abtn" style="background:#2a1a1a; border-color:#402a2a; color:#f08888" onclick="resetGame()">🔥 Wipe Progress</button>
+    <div class="sechdr">Activity Log</div>`;
+  h += glog.length ? glog.map(l => `<div class="le">${l.msg}</div>`).join('') : '<div class="le">No events.</div>';
+  el.innerHTML = h;
 }
 
 // ═══════════════════════════════════════════════════════ ACTIONS
 function upgBld(key) {
   const c = G.grid[key]; if (!c) return;
   const lv = c.lv || 1, cost = Math.floor(BLDGS[c.id].cost * lv * 2.5);
-  if (G.money < cost) { addLog(`⚠️ Need $${fmt(cost)} to upgrade`); return; }
-  G.grid[key] = { ...c, lv: lv + 1 };
+  if (G.money < cost) return;
+  G.grid[key].lv = lv + 1;
   G.money -= cost;
-  addLog(`⬆️ ${BLDGS[c.id].name} upgraded to Level ${lv + 1}`);
-  updateUI();
+  addLog(`⬆️ Upgraded ${BLDGS[c.id].name}`);
+  updateUI(); saveGame();
 }
 function demBld(key) {
   const c = G.grid[key]; if (!c) return;
-  const cnt  = Object.values(G.grid).filter(x => x.id === c.id).length;
-  const paid = Math.floor(BLDGS[c.id].cost * Math.pow(1.15, cnt - 1));
-  const ref  = Math.floor(paid * 0.5);
-  delete G.grid[key]; G.money += ref; selKey = null;
-  addLog(`↩️ Demolished ${BLDGS[c.id].name} — refunded $${fmt(ref)}`);
-  updateUI();
+  delete G.grid[key]; G.money += 100; selKey = null;
+  addLog(`↩️ Demolished building`);
+  updateUI(); saveGame();
 }
 function doSell(r) {
   const a = Math.floor(G.res[r] || 0); if (a < 1) return;
-  const inc = a * RES[r].sell;
-  G.res[r] = 0; G.money += inc; G.totalEarned += inc;
-  addLog(`💰 Sold ${fmt(a)} ${RES[r].name} → $${fmt(inc)}`);
-  updateUI();
+  G.money += a * RES[r].sell; G.res[r] = 0;
+  updateUI(); saveGame();
 }
 function sellAll() {
-  let tot = 0;
-  for (const r of Object.keys(RES)) { tot += Math.floor((G.res[r] || 0) * RES[r].sell); G.res[r] = 0; }
-  G.money += tot; G.totalEarned += tot;
-  addLog(`💰 Sold all resources → $${fmt(tot)}`);
-  updateUI();
+  for (const r of Object.keys(RES)) { G.money += Math.floor((G.res[r] || 0) * RES[r].sell); G.res[r] = 0; }
+  updateUI(); saveGame();
 }
 function doResearch(id) {
-  const rt = RESEARCH.find(r => r.id === id); if (!rt) return;
-  if (G.money < rt.cost) { addLog(`⚠️ Need $${fmt(rt.cost)}`); return; }
-  if (rt.req && rt.req.some(r => !G.research.includes(r))) { addLog('⚠️ Prerequisites missing'); return; }
-  G.money -= rt.cost; G.research.push(id);
-  addLog(`🔬 Researched: ${rt.n}`);
-  updateUI();
+  const rt = RESEARCH.find(r => r.id === id);
+  if (G.money >= rt.cost) { G.money -= rt.cost; G.research.push(id); addLog(`🔬 Researched ${rt.n}`); updateUI(); saveGame(); }
 }
 
 // ═══════════════════════════════════════════════════════ INIT
 window.addEventListener('resize', () => { resizeCanvas(); clampCam(); });
 resizeCanvas();
-cam.x = Math.max(0, (2 * HW + HW) / 2 - canvas.width  / 2);
-cam.y = Math.max(0, (2 * HHS + HR) / 2 - canvas.height / 2);
+loadGame(); // Load on start
+cam.x = (2 * HW + HW) / 2 - canvas.width  / 2;
+cam.y = (2 * HHS + HR) / 2 - canvas.height / 2;
 
 requestAnimationFrame(drawFrame);
 setInterval(gameTick, 1000);
 updateUI();
-addLog('System initialized. Scroll wheel zoom enabled.');
 </script>
 </body>
 </html>
