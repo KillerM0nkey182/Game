@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Industry Idle</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#091520;color:#a0b8cc;font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;overflow:hidden;user-select:none;-webkit-user-select:none}
+#game{display:flex;flex-direction:column;height:100vh}
+
+/* ── TOP BAR ── */
+#topbar{height:34px;background:#0a1928;border-bottom:1px solid #142436;display:flex;align-items:center;flex-shrink:0;overflow:hidden;gap:0;padding:0 8px}
+.cash-blk{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid #162436;flex-shrink:0}
+.c-ico{font-size:13px}
+.c-val{color:#f0c840;font-size:13px;font-weight:700;font-family:monospace}
+.c-rate{color:#38d850;font-size:9px;font-family:monospace}
+.pw-blk{display:flex;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #162436;flex-shrink:0}
+#hdr-pw{font-size:12px;font-weight:700;font-family:monospace}
+#rbar{display:flex;overflow:hidden;flex:1;align-items:center;height:100%}
+.ri{display:flex;align-items:center;gap:3px;padding:0 8px;border-right:1px solid #0e1c2c;flex-shrink:0;height:100%}
+.ra{font-size:10px;font-weight:700}
+.rv{font-size:10px;color:#98b0c8;font-family:monospace}
+.rr{font-size:9px;font-family:monospace;color:#30c850}
+.rr.neg{color:#d03030}
+
+/* ── MAIN ── */
+#main{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── CANVAS ── */
+#cw{flex:1;overflow:hidden;cursor:grab;position:relative;background:#091520}
+#cw.dragging{cursor:grabbing}
+#map{display:block}
+
+/* ── SIDEBAR ── */
+#sb{width:248px;background:#0c1828;border-left:1px solid #142436;display:flex;flex-direction:column;flex-shrink:0}
+.tabs{display:flex;border-bottom:1px solid #142436;flex-shrink:0}
+.tab{flex:1;padding:8px 2px;text-align:center;cursor:pointer;font-size:10px;color:#2a4460;border-bottom:2px solid transparent;letter-spacing:.5px;transition:color .1s}
+.tab.on{color:#88b8d8;border-bottom-color:#3070b0}
+.tab:not(.on):hover{color:#486080}
+#sb-body{flex:1;overflow-y:auto;padding:5px}
+.sechdr{font-size:8px;letter-spacing:2px;color:#243848;padding:8px 2px 4px}
+.bcard{background:#0a1524;border:1px solid #162636;border-radius:4px;padding:7px;margin-bottom:4px;cursor:pointer;transition:border-color .1s,background .1s}
+.bcard:not(.blk):hover{border-color:#2a4870;background:#0d1d30}
+.bcard.act{border-color:#3070b0!important;background:#0e2038!important}
+.bcard.blk{opacity:.35;cursor:not-allowed}
+.btop{display:flex;align-items:center;gap:5px}
+.bic{font-size:15px;line-height:1}
+.bn{flex:1;font-size:11px;font-weight:600;color:#a8c0d8}
+.bcs{font-size:10px;font-family:monospace}
+.bsub{font-size:9px;color:#2c4060;margin-top:2px}
+/* selected building */
+.selhdr{display:flex;align-items:center;gap:8px;padding:8px 6px 8px;border-bottom:1px solid #142436}
+.sr{display:flex;justify-content:space-between;font-size:11px;padding:4px 6px;border-bottom:1px solid #0c1a28}
+.sl{color:#3c5870}
+.abtn{display:block;width:100%;padding:7px;border-radius:4px;border:1px solid;cursor:pointer;font-size:11px;font-weight:600;text-align:center;margin:4px 0;transition:filter .1s;line-height:1.4}
+.abtn:hover{filter:brightness(1.2)}
+.ubtn{background:#0c1e0c;border-color:#1c3818;color:#50a830}
+.dbtn{background:#1e0c0c;border-color:#381818;color:#a83030}
+/* market */
+.mrow{display:flex;align-items:center;gap:5px;padding:4px 5px;background:#0a1420;border-radius:3px;margin-bottom:3px}
+.mdot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.mn{flex:1;font-size:10px;color:#506070}
+.ma{font-size:10px;font-family:monospace;color:#889aa8;min-width:46px;text-align:right}
+.mp{font-size:9px;color:#b09018;min-width:36px;text-align:right}
+.mbtn{background:#121e2c;border:1px solid #202e3c;border-radius:3px;color:#708020;padding:2px 6px;cursor:pointer;font-size:9px}
+.mbtn:disabled{color:#283040;cursor:default}
+.mbtn:not(:disabled):hover{background:#1a2a38}
+.sabtn{width:100%;padding:7px;background:#121c08;border:1px solid #24300e;border-radius:4px;color:#809820;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px}
+.sabtn:hover{background:#1c2a10}
+/* research */
+.rcard{padding:8px;background:#0a1420;border:1px solid #142030;border-radius:4px;margin-bottom:5px}
+.rdone{border-color:#182c18;background:#0a160a}
+.rlk{opacity:.4}
+.rn{font-size:11px;font-weight:700;color:#98b8d0}
+.rd{font-size:9px;color:#30404e;margin:3px 0 5px}
+.rbtn{background:#0c1808;border:1px solid #1a2e10;border-radius:3px;color:#60a020;padding:3px 10px;cursor:pointer;font-size:10px}
+.rbtn:disabled{background:#0c1418;border-color:#162028;color:#283038;cursor:default}
+.rbtn:not(:disabled):hover{background:#142410}
+/* log */
+.le{font-size:10px;color:#485868;margin-bottom:2px;padding:1px 0}
+/* placing badge */
+#pbadge{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#0c2032;border:1px solid #245888;border-radius:20px;padding:6px 18px;font-size:11px;color:#58b8f0;display:none;z-index:50;cursor:pointer;white-space:nowrap;box-shadow:0 2px 16px rgba(36,88,136,.4)}
+#pbadge:hover{background:#102838}
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#080e18}
+::-webkit-scrollbar-thumb{background:#142030;border-radius:2px}
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="topbar">
+    <div class="cash-blk">
+      <span class="c-ico">💰</span>
+      <span class="c-val" id="hdr-cash">$1,500</span>
+    </div>
+    <div class="pw-blk">
+      <span style="font-size:12px">⚡</span>
+      <span id="hdr-pw" style="color:#38d850">0/0 MW</span>
+    </div>
+    <div id="rbar"><span style="color:#243848;font-size:10px;padding:0 10px">Build mines on deposits to start producing resources</span></div>
+  </div>
+
+  <div id="main">
+    <div id="cw"><canvas id="map"></canvas></div>
+    <div id="sb">
+      <div class="tabs">
+        <div class="tab on"  id="tab-build"    onclick="setTab('build')">Build</div>
+        <div class="tab"     id="tab-market"   onclick="setTab('market')">Market</div>
+        <div class="tab"     id="tab-research" onclick="setTab('research')">Research</div>
+        <div class="tab"     id="tab-log"      onclick="setTab('log')">Log</div>
+      </div>
+      <div id="sb-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pbadge" onclick="stopPlace()">📌 Placing: <b id="pname"></b> &nbsp;— click a hex &nbsp;·&nbsp; Esc to cancel</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════ HEX CONSTANTS
+const HR = 27;                           // hex radius (outer)
+const HW = Math.sqrt(3) * HR;           // hex flat-to-flat width  ≈ 46.8
+const HHS = HR * 1.5;                   // vertical step between rows = 40.5
+const GCOLS = 32, GROWS = 22;           // grid size
+
+// Hex center in world coordinates (pointy-top, odd-r offset)
+function hcen(col, row) {
+  return {
+    x: HW * col + (row & 1 ? HW / 2 : 0) + HW,
+    y: HHS * row + HR + HHS * 0.5
+  };
+}
+
+// Draw a pointy-top hex path at screen pos (sx,sy) with radius r
+function hexPath(sx, sy, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = Math.PI / 3 * i - Math.PI / 2;
+    i ? ctx.lineTo(sx + r * Math.cos(a), sy + r * Math.sin(a))
+      : ctx.moveTo(sx + r * Math.cos(a), sy + r * Math.sin(a));
+  }
+  ctx.closePath();
+}
+
+// Precompute all hex centers (for fast pixel→hex lookup)
+const HC = Object.create(null);
+for (let row = 0; row < GROWS; row++)
+  for (let col = 0; col < GCOLS; col++)
+    HC[`${col},${row}`] = hcen(col, row);
+
+// Convert screen point → nearest hex key (null if too far)
+function s2h(sx, sy) {
+  const wx = sx + cam.x, wy = sy + cam.y;
+  let best = null, bst = (HR * 1.4) * (HR * 1.4);
+  for (const key in HC) {
+    const { x, y } = HC[key];
+    const d = (wx - x) * (wx - x) + (wy - y) * (wy - y);
+    if (d < bst) { bst = d; best = key; }
+  }
+  if (!best) return null;
+  const [col, row] = best.split(',').map(Number);
+  return { col, row, key: best };
+}
+
+// ═══════════════════════════════════════════════════════ GAME DATA
+
+const RES = {
+  // Raw (from deposits)
+  fe:   { name:'Iron Ore',     abbr:'Fe',   col:'#c87858', cat:0, sell:3  },
+  si:   { name:'Silicon',      abbr:'Si',   col:'#8ab0d8', cat:0, sell:4  },
+  cu:   { name:'Copper Ore',   abbr:'Cu',   col:'#d08838', cat:0, sell:3  },
+  coal: { name:'Coal',         abbr:'Coal', col:'#909090', cat:0, sell:2  },
+  al:   { name:'Aluminum Ore', abbr:'Al',   col:'#c0c0e0', cat:0, sell:4  },
+  ti:   { name:'Titanium Ore', abbr:'Ti',   col:'#88a8d0', cat:0, sell:6  },
+  oil:  { name:'Oil',          abbr:'Oil',  col:'#7888b8', cat:0, sell:5  },
+  // Processed
+  iron:    { name:'Iron',      abbr:'Ir',   col:'#b8c8d8', cat:1, sell:12 },
+  copper:  { name:'Copper',    abbr:'Cu+',  col:'#e07030', cat:1, sell:15 },
+  steel:   { name:'Steel',     abbr:'Ste',  col:'#60a0c8', cat:1, sell:38 },
+  // Components
+  wire:    { name:'Wire',      abbr:'Wir',  col:'#e8c820', cat:2, sell:22 },
+  gear:    { name:'Gear',      abbr:'Gea',  col:'#88a870', cat:2, sell:45 },
+  circuit: { name:'Circuit',   abbr:'Cir',  col:'#38b850', cat:2, sell:130 },
+  plastic: { name:'Plastic',   abbr:'Pla',  col:'#28c0c0', cat:2, sell:35  },
+  // Advanced
+  engine:    { name:'Engine',    abbr:'Eng', col:'#f04040', cat:3, sell:300 },
+  processor: { name:'Processor', abbr:'Pro', col:'#9048e0', cat:3, sell:500 },
+};
+
+// Deposit locations (deterministically placed across the map)
+const DEP = {
+  // Iron (Fe) clusters
+  "3,2":"fe","4,2":"fe","3,3":"fe","5,3":"fe","4,4":"fe","3,4":"fe",
+  "13,8":"fe","14,8":"fe","13,9":"fe","15,9":"fe","14,10":"fe",
+  "25,4":"fe","26,4":"fe","25,5":"fe","27,5":"fe","26,6":"fe",
+  "8,18":"fe","9,18":"fe","8,19":"fe","10,19":"fe","9,20":"fe",
+  // Silicon (Si) clusters
+  "8,1":"si","9,1":"si","8,2":"si","10,2":"si","9,3":"si",
+  "20,6":"si","21,6":"si","20,7":"si","22,7":"si","21,8":"si",
+  "28,15":"si","29,15":"si","28,16":"si","30,16":"si","29,17":"si",
+  // Copper (Cu) clusters
+  "5,10":"cu","6,10":"cu","5,11":"cu","7,11":"cu","6,12":"cu",
+  "17,4":"cu","18,4":"cu","17,5":"cu","19,5":"cu","18,6":"cu",
+  "26,13":"cu","27,13":"cu","26,14":"cu","28,14":"cu","27,15":"cu",
+  // Coal clusters
+  "2,7":"coal","3,7":"coal","2,8":"coal","4,8":"coal","3,9":"coal","2,9":"coal",
+  "14,3":"coal","15,3":"coal","14,4":"coal","16,4":"coal","15,5":"coal",
+  "22,14":"coal","23,14":"coal","22,15":"coal","24,15":"coal","23,16":"coal",
+  "10,15":"coal","11,15":"coal","10,16":"coal","12,16":"coal",
+  // Aluminum (Al) clusters
+  "10,5":"al","11,5":"al","10,6":"al","12,6":"al","11,7":"al",
+  "21,11":"al","22,11":"al","21,12":"al","23,12":"al","22,13":"al",
+  // Titanium (Ti) clusters
+  "4,15":"ti","5,15":"ti","4,16":"ti","6,16":"ti","5,17":"ti",
+  "24,9":"ti","25,9":"ti","24,10":"ti","26,10":"ti","25,11":"ti",
+  // Oil clusters
+  "7,19":"oil","8,19":"oil","7,20":"oil","9,20":"oil","8,21":"oil",
+  "18,16":"oil","19,16":"oil","18,17":"oil","20,17":"oil","19,18":"oil",
+  "29,7":"oil","30,7":"oil","29,8":"oil","31,8":"oil","30,9":"oil",
+};
+
+// Building circle colors
+const BCOL = {
+  fe_mine:'#6a4030', si_mine:'#2848a0', cu_mine:'#904820', coal_mine:'#424242',
+  al_mine:'#505898', ti_mine:'#2c5480', oil_pump:'#283858',
+  power_plant:'#1c3a80',
+  iron_smelt:'#883020', copper_smelt:'#984018', steel_mill:'#1c4888',
+  wire_mill:'#806010', gear_shop:'#384820',
+  oil_refinery:'#1c5848', circuit_fab:'#1c5830',
+  engine_plant:'#681818', chip_fab:'#481868',
+};
+
+const BLDGS = {
+  // ── TIER 0: Extraction ──
+  fe_mine:   { name:'Iron Mine',      ic:'⛏', t:0, dep:'fe',   cost:80,  pw:0,  pro:[{r:'fe',a:2}],     con:[],                                 desc:'Mines iron ore (Fe) deposits' },
+  si_mine:   { name:'Silicon Mine',   ic:'⛏', t:0, dep:'si',   cost:100, pw:0,  pro:[{r:'si',a:2}],     con:[],                                 desc:'Mines silicon (Si) deposits' },
+  cu_mine:   { name:'Copper Mine',    ic:'⛏', t:0, dep:'cu',   cost:100, pw:0,  pro:[{r:'cu',a:2}],     con:[],                                 desc:'Mines copper ore (Cu) deposits' },
+  coal_mine: { name:'Coal Mine',      ic:'⛏', t:0, dep:'coal', cost:80,  pw:0,  pro:[{r:'coal',a:3}],   con:[],                                 desc:'Mines coal deposits' },
+  al_mine:   { name:'Aluminum Mine',  ic:'⛏', t:0, dep:'al',   cost:120, pw:0,  pro:[{r:'al',a:2}],     con:[],                                 desc:'Mines aluminum ore (Al) deposits' },
+  ti_mine:   { name:'Titanium Mine',  ic:'⛏', t:0, dep:'ti',   cost:200, pw:0,  pro:[{r:'ti',a:1}],     con:[],                                 desc:'Mines titanium ore (Ti) deposits' },
+  oil_pump:  { name:'Oil Pump',       ic:'🛢', t:0, dep:'oil',  cost:280, pw:0,  pro:[{r:'oil',a:1}],    con:[],                                 desc:'Pumps crude oil deposits' },
+  power_plant:{ name:'Power Plant',   ic:'⚡', t:0, dep:null,   cost:380, pw:+20,pro:[],                  con:[{r:'coal',a:3}],                   desc:'Burns coal → +20 MW power grid' },
+  // ── TIER 1: Processing ──
+  iron_smelt:  { name:'Iron Smelter',    ic:'🔥', t:1, dep:null, cost:320,  pw:-3, pro:[{r:'iron',a:2}],    con:[{r:'fe',a:3},  {r:'coal',a:1}],    desc:'Smelts Fe ore + coal → iron' },
+  copper_smelt:{ name:'Copper Smelter',  ic:'🔥', t:1, dep:null, cost:320,  pw:-3, pro:[{r:'copper',a:2}],  con:[{r:'cu',a:3},  {r:'coal',a:1}],    desc:'Smelts Cu ore + coal → copper' },
+  steel_mill:  { name:'Steel Mill',      ic:'🏭', t:1, dep:null, cost:650,  pw:-5, pro:[{r:'steel',a:1}],   con:[{r:'iron',a:3},{r:'coal',a:2}],    desc:'Iron + coal → steel' },
+  // ── TIER 2: Manufacturing ──
+  wire_mill:   { name:'Wire Mill',       ic:'〰', t:2, dep:null, cost:480,  pw:-2, pro:[{r:'wire',a:3}],    con:[{r:'copper',a:2}],                  desc:'Draws copper into wire' },
+  gear_shop:   { name:'Gear Workshop',   ic:'⚙',  t:2, dep:null, cost:550,  pw:-3, pro:[{r:'gear',a:2}],    con:[{r:'steel',a:3}],                   desc:'Machines steel into gears' },
+  oil_refinery:{ name:'Oil Refinery',    ic:'🏗', t:2, dep:null, cost:1300, pw:-4, pro:[{r:'plastic',a:2}], con:[{r:'oil',a:2}],                     desc:'Refines oil → plastic', req:'petrochemicals' },
+  circuit_fab: { name:'Circuit Fab',     ic:'🔌', t:2, dep:null, cost:1700, pw:-5, pro:[{r:'circuit',a:1}], con:[{r:'wire',a:4},{r:'si',a:2}],       desc:'Wire + Si → circuit boards', req:'electronics' },
+  // ── TIER 3: Advanced ──
+  engine_plant:{ name:'Engine Plant',    ic:'🔴', t:3, dep:null, cost:2800, pw:-6, pro:[{r:'engine',a:1}],   con:[{r:'gear',a:4},{r:'steel',a:5}],    desc:'Gear + steel → industrial engines', req:'mechanical' },
+  chip_fab:    { name:'Chip Factory',    ic:'🟣', t:3, dep:null, cost:4800, pw:-8, pro:[{r:'processor',a:1}],con:[{r:'circuit',a:3},{r:'si',a:2}],   desc:'Circuits + Si → processors', req:'computing' },
+};
+
+const TIER_NAMES = ['EXTRACTION','PROCESSING','MANUFACTURING','ADVANCED'];
+
+const RESEARCH = [
+  { id:'petrochemicals', n:'Petrochemicals', cost:2000, desc:'Unlocks Oil Refinery (oil → plastic)' },
+  { id:'electronics',    n:'Electronics',    cost:3000, desc:'Unlocks Circuit Fabricator (wire+Si → circuit)' },
+  { id:'mechanical',     n:'Mechanical Eng', cost:4000, desc:'Unlocks Engine Plant (gear+steel → engine)' },
+  { id:'computing',      n:'Computing',      cost:8000, desc:'Unlocks Chip Factory (circuit+Si → processor)', req:['electronics'] },
+];
+
+// ═══════════════════════════════════════════════════════ STATE
+const fmt = n => n >= 1e9 ? (n/1e9).toFixed(2)+'B' : n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : Math.floor(n)+'';
+const fmtR = n => Math.abs(n) < 0.05 ? '' : (n > 0 ? '+' : '') + n.toFixed(1) + '/s';
+
+let G = {
+  money: 1500,
+  res: Object.fromEntries(Object.keys(RES).map(r => [r, 0])),
+  grid: Object.create(null),    // "col,row" → {id, lv}
+  power: { gen: 0, con: 0 },
+  research: [],
+  tick: 0,
+  totalEarned: 0,
+};
+
+let cam     = { x: 0, y: 0 };
+let placing = null;
+let selKey  = null;
+let activeTab = 'build';
+let glog    = [];
+let parts   = [];
+let dragSt  = null;
+let animT   = 0;
+
+// ═══════════════════════════════════════════════════════ HELPERS
+function bldCost(id) {
+  const n = Object.values(G.grid).filter(c => c.id === id).length;
+  return Math.floor(BLDGS[id].cost * Math.pow(1.15, n));
+}
+function calcPower() {
+  let gen = 0, con = 0;
+  for (const c of Object.values(G.grid)) {
+    const b = BLDGS[c.id]; if (!b) continue;
+    const lv = c.lv || 1;
+    b.pw > 0 ? (gen += b.pw * lv) : (con += Math.abs(b.pw) * lv);
+  }
+  return { gen, con };
+}
+function calcRates() {
+  const r = Object.fromEntries(Object.keys(RES).map(k => [k, 0]));
+  const { gen, con } = calcPower();
+  const powered = gen >= con;
+  for (const c of Object.values(G.grid)) {
+    const b = BLDGS[c.id]; if (!b) continue;
+    const lv = c.lv || 1;
+    if (b.pw <= 0 && !powered) continue;
+    b.pro.forEach(p => r[p.r] += p.a * lv);
+    b.con.forEach(p => r[p.r] -= p.a * lv);
+  }
+  return r;
+}
+function addLog(msg) {
+  glog.unshift({ msg, id: Date.now() + Math.random() });
+  if (glog.length > 60) glog.length = 60;
+  if (activeTab === 'log') renderContent();
+}
+
+// ═══════════════════════════════════════════════════════ GAME TICK
+function gameTick() {
+  const pw = calcPower();
+  G.power = pw;
+  const powered = pw.gen >= pw.con;
+
+  for (const [key, c] of Object.entries(G.grid)) {
+    const b = BLDGS[c.id]; if (!b) continue;
+    const lv = c.lv || 1;
+    if (b.pw <= 0 && !powered) continue;
+    if (b.con.every(x => (G.res[x.r] || 0) >= x.a * lv)) {
+      b.con.forEach(x => G.res[x.r] -= x.a * lv);
+      b.pro.forEach(x => {
+        G.res[x.r] = (G.res[x.r] || 0) + x.a * lv;
+        // Spawn particles at world pos
+        const { x: wx, y: wy } = HC[key];
+        for (let i = 0; i < Math.min(x.a * lv, 5); i++) {
+          parts.push({
+            wx: wx + (Math.random() - .5) * 12,
+            wy: wy + (Math.random() - .5) * 12,
+            vx: (Math.random() - .5) * 1.6,
+            vy: -(0.6 + Math.random() * 1.8),
+            col: RES[x.r].col,
+            life: 55 + Math.random() * 30,
+            max: 85,
+          });
+        }
+      });
+    }
+  }
+  G.tick++;
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════ CANVAS
+const canvas = document.getElementById('map');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const w = document.getElementById('cw');
+  canvas.width  = w.clientWidth;
+  canvas.height = w.clientHeight;
+}
+
+function drawFrame(t) {
+  animT = t;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background
+  ctx.fillStyle = '#091520';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Slight vignette
+  const vig = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height*0.3,
+                                        canvas.width/2, canvas.height/2, canvas.height*0.9);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,8,0.35)');
+  ctx.fillStyle = vig; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw hexes (culled)
+  const pbData = placing ? BLDGS[placing] : null;
+  for (const [key, { x: wx, y: wy }] of Object.entries(HC)) {
+    const sx = wx - cam.x, sy = wy - cam.y;
+    if (sx < -HR * 2 || sx > canvas.width + HR * 2 || sy < -HR * 2 || sy > canvas.height + HR * 2) continue;
+    drawHex(key, sx, sy, pbData, t);
+  }
+
+  // Particles (world → screen)
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    const alpha = (p.life / p.max) * 0.85;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.col;
+    ctx.beginPath();
+    ctx.arc(p.wx - cam.x, p.wy - cam.y, 2, 0, 6.28);
+    ctx.fill();
+    p.wx += p.vx; p.wy += p.vy; p.vy *= 0.96; p.vx *= 0.97; p.life--;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+  ctx.globalAlpha = 1;
+
+  requestAnimationFrame(drawFrame);
+}
+
+function drawHex(key, sx, sy, pbData, t) {
+  const dep  = DEP[key];
+  const cell = G.grid[key];
+  const isSel = selKey === key;
+  const canPlace = pbData && !cell && (pbData.dep ? dep === pbData.dep : !dep);
+
+  // Hex fill
+  hexPath(sx, sy, HR - 1);
+  ctx.fillStyle = dep ? '#0e2036' : '#0d1a2a';
+  ctx.fill();
+
+  // Hex border
+  hexPath(sx, sy, HR - 1);
+  ctx.strokeStyle = isSel ? '#f0c840' : canPlace ? '#38d050' : '#162840';
+  ctx.lineWidth   = isSel ? 2.5 : canPlace ? 1.5 : 0.75;
+  ctx.stroke();
+
+  // Valid placement highlight
+  if (canPlace) {
+    hexPath(sx, sy, HR - 2);
+    ctx.fillStyle = 'rgba(56,208,80,0.09)';
+    ctx.fill();
+  }
+
+  // Deposit label
+  if (dep && !cell) {
+    const rv = RES[dep];
+    ctx.fillStyle = '#4878a0';
+    ctx.font = 'bold 9px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(rv.abbr, sx, sy);
+  }
+
+  // Building
+  if (cell) {
+    const bd = BLDGS[cell.id];
+    const lv = cell.lv || 1;
+    const { gen, con } = G.power;
+    const active = bd.pw > 0 || gen >= con;
+    const bcol   = BCOL[cell.id] || '#283848';
+    const cr     = Math.round(HR * 0.65);
+
+    // Selection glow
+    if (isSel) {
+      const gv = (Math.sin(t * 0.003) + 1) * 0.5;
+      ctx.shadowColor = '#f0c840';
+      ctx.shadowBlur  = 10 + gv * 8;
+    }
+
+    // Shadow
+    ctx.beginPath(); ctx.arc(sx + 2, sy + 2, cr, 0, 6.28);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fill();
+    if (isSel) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+
+    // Main circle body
+    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
+    ctx.fillStyle = bcol; ctx.fill();
+
+    // Radial highlight (top-left catch light)
+    const g = ctx.createRadialGradient(sx - cr * 0.35, sy - cr * 0.35, 0, sx, sy, cr);
+    g.addColorStop(0, 'rgba(255,255,255,0.22)');
+    g.addColorStop(0.6, 'rgba(255,255,255,0.04)');
+    g.addColorStop(1, 'rgba(0,0,0,0.18)');
+    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
+    ctx.fillStyle = g; ctx.fill();
+
+    // Circle border
+    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
+    ctx.strokeStyle = active ? 'rgba(255,255,255,0.28)' : 'rgba(220,60,60,0.5)';
+    ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Icon
+    ctx.font = `${Math.round(cr * 0.9)}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
+    ctx.fillText(bd.ic, sx, sy + 1);
+    ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+
+    // Level badge (top-right)
+    if (lv > 1) {
+      const bx = sx + cr * 0.68, by = sy - cr * 0.68;
+      ctx.fillStyle = '#091520';
+      ctx.beginPath(); ctx.arc(bx, by, 7, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#e0c030'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#e0c030'; ctx.font = 'bold 6px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(lv, bx, by);
+    }
+
+    // Status dot (top-right corner of hex)
+    ctx.beginPath(); ctx.arc(sx + cr - 3, sy - cr + 3, 3, 0, 6.28);
+    ctx.fillStyle = active ? '#38f060' : '#f03838'; ctx.fill();
+
+    // Rate label (below building circle)
+    if (bd.pro.length > 0) {
+      const rate = bd.pro[0].a * lv;
+      const rr = RES[bd.pro[0].r];
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      const lw = ctx.measureText(rate + '/s').width + 6;
+      ctx.fillRect(sx - lw / 2, sy + cr + 2, lw, 11);
+      ctx.fillStyle = rr.col;
+      ctx.font = '7px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(rate + '/s', sx, sy + cr + 3);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════ INPUT
+const cw = document.getElementById('cw');
+
+cw.addEventListener('mousedown', e => {
+  dragSt = { ox: e.clientX, oy: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+  cw.classList.add('dragging');
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if (!dragSt) return;
+  const dx = e.clientX - dragSt.ox, dy = e.clientY - dragSt.oy;
+  if (Math.abs(dx) + Math.abs(dy) > 4) dragSt.moved = true;
+  if (dragSt.moved) { cam.x = dragSt.cx - dx; cam.y = dragSt.cy - dy; clampCam(); }
+});
+window.addEventListener('mouseup', e => {
+  if (!dragSt) return;
+  if (!dragSt.moved) {
+    const r = canvas.getBoundingClientRect();
+    const h = s2h(e.clientX - r.left, e.clientY - r.top);
+    if (h) onHexClick(h.col, h.row, h.key);
+  }
+  dragSt = null;
+  cw.classList.remove('dragging');
+});
+cw.addEventListener('wheel', e => {
+  e.preventDefault();
+  cam.x += e.deltaX; cam.y += e.deltaY; clampCam();
+}, { passive: false });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { stopPlace(); selKey = null; renderContent(); }
+  // Arrow pan
+  const sp = 24;
+  if (e.key === 'ArrowLeft')  { cam.x -= sp; clampCam(); }
+  if (e.key === 'ArrowRight') { cam.x += sp; clampCam(); }
+  if (e.key === 'ArrowUp')    { cam.y -= sp; clampCam(); }
+  if (e.key === 'ArrowDown')  { cam.y += sp; clampCam(); }
+});
+
+// Touch support
+cw.addEventListener('touchstart', e => {
+  if (e.touches.length !== 1) return;
+  dragSt = { ox: e.touches[0].clientX, oy: e.touches[0].clientY, cx: cam.x, cy: cam.y, moved: false };
+}, { passive: true });
+cw.addEventListener('touchmove', e => {
+  if (!dragSt || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - dragSt.ox, dy = e.touches[0].clientY - dragSt.oy;
+  if (Math.abs(dx) + Math.abs(dy) > 4) dragSt.moved = true;
+  if (dragSt.moved) { cam.x = dragSt.cx - dx; cam.y = dragSt.cy - dy; clampCam(); }
+}, { passive: true });
+cw.addEventListener('touchend', e => {
+  if (!dragSt) return;
+  if (!dragSt.moved) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.changedTouches[0];
+    const h = s2h(t.clientX - r.left, t.clientY - r.top);
+    if (h) onHexClick(h.col, h.row, h.key);
+  }
+  dragSt = null;
+});
+
+function clampCam() {
+  const worldW = GCOLS * HW + HW * 1.5;
+  const worldH = GROWS * HHS + HR * 2.5;
+  cam.x = Math.max(0, Math.min(cam.x, Math.max(0, worldW - canvas.width)));
+  cam.y = Math.max(0, Math.min(cam.y, Math.max(0, worldH - canvas.height)));
+}
+
+function onHexClick(col, row, key) {
+  const dep = DEP[key];
+  if (placing) {
+    const pb = BLDGS[placing];
+    if (G.grid[key])              { addLog('⚠ Hex already occupied'); return; }
+    if (pb.dep && dep !== pb.dep) { addLog(`⚠ ${pb.name} must be placed on a ${(RES[pb.dep]||{}).abbr||pb.dep} deposit`); return; }
+    if (!pb.dep && dep)            { addLog('⚠ Processing buildings must go on empty hexes (no deposit)'); return; }
+    const cost = bldCost(placing);
+    if (G.money < cost)            { addLog(`⚠ Not enough cash — need $${fmt(cost)}`); return; }
+    G.grid[key] = { id: placing, lv: 1 };
+    G.money -= cost;
+    addLog(`✓ Built ${pb.name} at (${col},${row})`);
+    updateUI();
+  } else {
+    selKey = selKey === key ? null : key;
+    updateUI();
+  }
+}
+
+// ═══════════════════════════════════════════════════════ UI
+function startPlace(id) {
+  placing = placing === id ? null : id;
+  selKey = null;
+  const badge = document.getElementById('pbadge');
+  badge.style.display = placing ? 'block' : 'none';
+  if (placing) document.getElementById('pname').textContent = BLDGS[placing].name;
+  renderContent();
+}
+function stopPlace() {
+  placing = null;
+  document.getElementById('pbadge').style.display = 'none';
+  renderContent();
+}
+function setTab(t) {
+  activeTab = t;
+  ['build','market','research','log'].forEach(id =>
+    document.getElementById('tab-'+id).classList.toggle('on', id === t));
+  if (t !== 'build') selKey = null;
+  renderContent();
+}
+
+function updateUI() {
+  // Cash + power
+  document.getElementById('hdr-cash').textContent = '$' + fmt(G.money);
+  const pw = G.power;
+  const pe = document.getElementById('hdr-pw');
+  pe.textContent = `${pw.gen}/${pw.con} MW`;
+  pe.style.color = pw.gen >= pw.con ? '#38d850' : '#f03838';
+
+  // Resource bar
+  const rates = calcRates();
+  let rhtml = '';
+  for (const [r, rv] of Object.entries(RES)) {
+    const a = G.res[r] || 0, rt = rates[r] || 0;
+    if (a === 0 && rt === 0) continue;
+    const rs = fmtR(rt);
+    rhtml += `<div class="ri"><span class="ra" style="color:${rv.col}">${rv.abbr}</span><span class="rv">${fmt(a)}</span>${rs ? `<span class="rr ${rt < 0 ? 'neg' : ''}">${rs}</span>` : ''}</div>`;
+  }
+  document.getElementById('rbar').innerHTML = rhtml ||
+    '<span style="color:#1a2e40;font-size:10px;padding:0 10px">Build mines on deposits · Power plant needed for processing</span>';
+
+  renderContent();
+}
+
+function renderContent() {
+  const el = document.getElementById('sb-body');
+  const selCell = selKey ? G.grid[selKey] : null;
+  const selBD   = selCell ? BLDGS[selCell.id] : null;
+
+  if (activeTab === 'build') {
+    if (selCell && selBD && !placing) renderSelPanel(el, selKey, selCell, selBD);
+    else renderPalette(el);
+  } else if (activeTab === 'market')   renderMarketPanel(el);
+  else if (activeTab === 'research')   renderResearchPanel(el);
+  else                                  renderLogPanel(el);
+}
+
+function renderPalette(el) {
+  let h = '';
+  for (let t = 0; t <= 3; t++) {
+    const items = Object.entries(BLDGS).filter(([,b]) => b.t === t);
+    h += `<div class="sechdr">${TIER_NAMES[t]}</div>`;
+    items.forEach(([id, b]) => {
+      const locked = b.req && !G.research.includes(b.req);
+      const cost   = bldCost(id);
+      const canA   = G.money >= cost;
+      const active = placing === id;
+      const bc     = BCOL[id] || '#283848';
+      h += `<div class="bcard ${active ? 'act' : ''} ${locked ? 'blk' : ''}" onclick="${locked ? '' : `startPlace('${id}')`}">
+        <div class="btop">
+          <span class="bic" style="filter:drop-shadow(0 0 3px ${bc}88)">${b.ic}</span>
+          <span class="bn">${b.name}${locked ? ' 🔒' : ''}</span>
+          <span class="bcs" style="color:${locked ? '#283848' : canA ? '#d8a820' : '#583820'}">${locked ? 'Locked' : '$' + fmt(cost)}</span>
+        </div>
+        <div class="bsub">${b.pro.map(p => `+${p.a} ${RES[p.r].abbr}`).join(' ')}${b.pw ? ` ${b.pw > 0 ? '+' : ''}${b.pw}MW` : ''}</div>
+      </div>`;
+    });
+  }
+  el.innerHTML = h;
+}
+
+function renderSelPanel(el, key, cell, bd) {
+  const lv = cell.lv || 1;
+  const { gen, con } = G.power;
+  const active = bd.pw > 0 || gen >= con;
+  const uc     = Math.floor(bd.cost * lv * 2);
+  el.innerHTML = `
+    <div class="selhdr">
+      <span style="font-size:22px">${bd.ic}</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#b0ccec">${bd.name}</div>
+        <div style="font-size:10px;color:#3870a0">Level ${lv} &nbsp;·&nbsp; <span style="color:${active ? '#38d050' : '#d03838'}">${active ? 'Working' : 'Idle — need power'}</span></div>
+      </div>
+    </div>
+    <div class="sr"><span class="sl">Power</span><span style="color:${bd.pw < 0 ? '#f03838' : '#38d850'};font-family:monospace">${bd.pw > 0 ? '+' : ''}${bd.pw * lv} MW</span></div>
+    ${bd.pro.map(p => `<div class="sr"><span class="sl" style="color:#285828">Produces</span><span style="color:${RES[p.r].col};font-family:monospace">+${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
+    ${bd.con.map(p => `<div class="sr"><span class="sl" style="color:#582828">Consumes</span><span style="color:#b04848;font-family:monospace">−${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
+    <button class="abtn ubtn" onclick="upgBld('${key}')">⬆ Upgrade → Level ${lv + 1}<br><small style="opacity:.7">Cost: $${fmt(uc)}</small></button>
+    <button class="abtn dbtn" onclick="demBld('${key}')">↩ Demolish<small style="opacity:.6"> (50% refund)</small></button>
+    <button class="abtn" style="background:#0b1828;border-color:#142436;color:#385868;margin-top:6px" onclick="selKey=null;renderContent()">← Back to Build</button>`;
+}
+
+function renderMarketPanel(el) {
+  let h = '';
+  for (const [r, rv] of Object.entries(RES)) {
+    const a = G.res[r] || 0;
+    h += `<div class="mrow">
+      <div class="mdot" style="background:${rv.col}"></div>
+      <span class="mn">${rv.name}</span>
+      <span class="ma">${fmt(a)}</span>
+      <span class="mp">$${rv.sell}/ea</span>
+      <button class="mbtn" ${a < 1 ? 'disabled' : ''} onclick="doSell('${r}')">Sell</button>
+    </div>`;
+  }
+  h += `<button class="sabtn" onclick="sellAll()">💰 SELL ALL RESOURCES</button>`;
+  el.innerHTML = h;
+}
+
+function renderResearchPanel(el) {
+  let h = '';
+  RESEARCH.forEach(rt => {
+    const done   = G.research.includes(rt.id);
+    const locked = rt.req && rt.req.some(r => !G.research.includes(r));
+    const canA   = G.money >= rt.cost;
+    h += `<div class="rcard ${done ? 'rdone' : ''} ${locked ? 'rlk' : ''}">
+      <div class="rn">${rt.n}</div>
+      <div class="rd">${rt.desc}</div>
+      ${done ? '<div style="color:#38c050;font-size:10px">✓ Researched</div>'
+             : `<button class="rbtn" ${locked || !canA ? 'disabled' : ''} onclick="doResearch('${rt.id}')">$${fmt(rt.cost)}</button>`}
+    </div>`;
+  });
+  el.innerHTML = h;
+}
+
+function renderLogPanel(el) {
+  el.innerHTML = glog.length
+    ? glog.map(l => `<div class="le">${l.msg}</div>`).join('')
+    : '<div class="le" style="color:#182830">No events yet. Start building!</div>';
+}
+
+// ═══════════════════════════════════════════════════════ ACTIONS
+function upgBld(key) {
+  const c = G.grid[key]; if (!c) return;
+  const lv = c.lv || 1, cost = Math.floor(BLDGS[c.id].cost * lv * 2);
+  if (G.money < cost) { addLog(`⚠ Need $${fmt(cost)} to upgrade`); return; }
+  G.grid[key] = { ...c, lv: lv + 1 };
+  G.money -= cost;
+  addLog(`⬆ ${BLDGS[c.id].name} upgraded to Level ${lv + 1}`);
+  updateUI();
+}
+function demBld(key) {
+  const c = G.grid[key]; if (!c) return;
+  const cnt  = Object.values(G.grid).filter(x => x.id === c.id).length;
+  const paid = Math.floor(BLDGS[c.id].cost * Math.pow(1.15, cnt - 1));
+  const ref  = Math.floor(paid * 0.5);
+  delete G.grid[key]; G.money += ref; selKey = null;
+  addLog(`↩ Demolished ${BLDGS[c.id].name} — refunded $${fmt(ref)}`);
+  updateUI();
+}
+function doSell(r) {
+  const a = Math.floor(G.res[r] || 0); if (a < 1) return;
+  const inc = a * RES[r].sell;
+  G.res[r] = 0; G.money += inc; G.totalEarned += inc;
+  addLog(`💰 Sold ${fmt(a)} ${RES[r].name} → $${fmt(inc)}`);
+  updateUI();
+}
+function sellAll() {
+  let tot = 0;
+  for (const r of Object.keys(RES)) { tot += Math.floor((G.res[r] || 0) * RES[r].sell); G.res[r] = 0; }
+  G.money += tot; G.totalEarned += tot;
+  addLog(`💰 Sold all resources → $${fmt(tot)}`);
+  updateUI();
+}
+function doResearch(id) {
+  const rt = RESEARCH.find(r => r.id === id); if (!rt) return;
+  if (G.money < rt.cost) { addLog(`⚠ Need $${fmt(rt.cost)}`); return; }
+  if (rt.req && rt.req.some(r => !G.research.includes(r))) { addLog('⚠ Prerequisites missing'); return; }
+  G.money -= rt.cost; G.research.push(id);
+  addLog(`🔬 Researched: ${rt.n}`);
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════ INIT
+window.addEventListener('resize', () => { resizeCanvas(); clampCam(); });
+resizeCanvas();
+// Start camera roughly centered on deposit-rich area
+cam.x = Math.max(0, (GCOLS * HW + HW) / 2 - canvas.width  / 2 - HW * 2);
+cam.y = Math.max(0, (GROWS * HHS + HR) / 2 - canvas.height / 2 - HHS);
+
+requestAnimationFrame(drawFrame);
+setInterval(gameTick, 1000);
+updateUI();
+addLog('Welcome to Industry Idle! Drag to pan the map.');
+addLog('Click a deposit (Fe/Si/Cu/Coal…) and build a mine from the Build panel.');
+addLog('Tip: Build a Power Plant first — processing buildings need power to run.');
+</script>
+</body>
+</html>
