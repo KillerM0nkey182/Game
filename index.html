@@ -2,89 +2,105 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Industry Idle</title>
+<title>Industry Idle: Expanded</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#091520;color:#a0b8cc;font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;overflow:hidden;user-select:none;-webkit-user-select:none}
+html,body{height:100%;background:#050a10;color:#a0b8cc;font-family:'Inter',system-ui,sans-serif;font-size:12px;overflow:hidden;user-select:none;-webkit-user-select:none}
 #game{display:flex;flex-direction:column;height:100vh}
 
 /* ── TOP BAR ── */
-#topbar{height:34px;background:#0a1928;border-bottom:1px solid #142436;display:flex;align-items:center;flex-shrink:0;overflow:hidden;gap:0;padding:0 8px}
-.cash-blk{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid #162436;flex-shrink:0}
-.c-ico{font-size:13px}
-.c-val{color:#f0c840;font-size:13px;font-weight:700;font-family:monospace}
-.c-rate{color:#38d850;font-size:9px;font-family:monospace}
-.pw-blk{display:flex;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #162436;flex-shrink:0}
-#hdr-pw{font-size:12px;font-weight:700;font-family:monospace}
+#topbar{height:40px;background:rgba(10,20,35,0.85);backdrop-filter:blur(8px);border-bottom:1px solid #1a304d;display:flex;align-items:center;flex-shrink:0;overflow:hidden;gap:0;padding:0 12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:10}
+.cash-blk{display:flex;align-items:center;gap:6px;padding-right:15px;border-right:1px solid #1c3555;flex-shrink:0}
+.c-ico{font-size:15px;filter:drop-shadow(0 0 5px rgba(240,200,64,0.6))}
+.c-val{color:#f5d04c;font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+.pw-blk{display:flex;align-items:center;gap:6px;padding:0 15px;border-right:1px solid #1c3555;flex-shrink:0}
+#hdr-pw{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;text-shadow:0 0 8px rgba(56,216,80,0.4)}
 #rbar{display:flex;overflow:hidden;flex:1;align-items:center;height:100%}
-.ri{display:flex;align-items:center;gap:3px;padding:0 8px;border-right:1px solid #0e1c2c;flex-shrink:0;height:100%}
-.ra{font-size:10px;font-weight:700}
-.rv{font-size:10px;color:#98b0c8;font-family:monospace}
-.rr{font-size:9px;font-family:monospace;color:#30c850}
-.rr.neg{color:#d03030}
+.ri{display:flex;align-items:center;gap:5px;padding:0 12px;border-right:1px solid #152840;flex-shrink:0;height:100%}
+.ra{font-size:11px;font-weight:800;letter-spacing:0.5px;text-shadow:0 0 4px currentColor}
+.rv{font-size:11px;color:#cbdcf0;font-family:'JetBrains Mono',monospace}
+.rr{font-size:10px;font-family:'JetBrains Mono',monospace;color:#38d850;background:rgba(56,216,80,0.1);padding:2px 4px;border-radius:3px}
+.rr.neg{color:#f04c4c;background:rgba(240,76,76,0.1)}
 
 /* ── MAIN ── */
 #main{display:flex;flex:1;overflow:hidden;min-height:0}
 
 /* ── CANVAS ── */
-#cw{flex:1;overflow:hidden;cursor:grab;position:relative;background:#091520}
+#cw{flex:1;overflow:hidden;cursor:grab;position:relative;background:radial-gradient(circle at center, #0a1524 0%, #03060a 100%)}
 #cw.dragging{cursor:grabbing}
 #map{display:block}
 
 /* ── SIDEBAR ── */
-#sb{width:248px;background:#0c1828;border-left:1px solid #142436;display:flex;flex-direction:column;flex-shrink:0}
-.tabs{display:flex;border-bottom:1px solid #142436;flex-shrink:0}
-.tab{flex:1;padding:8px 2px;text-align:center;cursor:pointer;font-size:10px;color:#2a4460;border-bottom:2px solid transparent;letter-spacing:.5px;transition:color .1s}
-.tab.on{color:#88b8d8;border-bottom-color:#3070b0}
-.tab:not(.on):hover{color:#486080}
-#sb-body{flex:1;overflow-y:auto;padding:5px}
-.sechdr{font-size:8px;letter-spacing:2px;color:#243848;padding:8px 2px 4px}
-.bcard{background:#0a1524;border:1px solid #162636;border-radius:4px;padding:7px;margin-bottom:4px;cursor:pointer;transition:border-color .1s,background .1s}
-.bcard:not(.blk):hover{border-color:#2a4870;background:#0d1d30}
-.bcard.act{border-color:#3070b0!important;background:#0e2038!important}
-.bcard.blk{opacity:.35;cursor:not-allowed}
-.btop{display:flex;align-items:center;gap:5px}
-.bic{font-size:15px;line-height:1}
-.bn{flex:1;font-size:11px;font-weight:600;color:#a8c0d8}
-.bcs{font-size:10px;font-family:monospace}
-.bsub{font-size:9px;color:#2c4060;margin-top:2px}
+#sb{width:280px;background:rgba(12,24,40,0.9);backdrop-filter:blur(15px);border-left:1px solid #1a304d;display:flex;flex-direction:column;flex-shrink:0;box-shadow:-5px 0 25px rgba(0,0,0,0.5);z-index:10}
+.tabs{display:flex;border-bottom:1px solid #1a304d;flex-shrink:0;background:rgba(5,10,16,0.5)}
+.tab{flex:1;padding:12px 2px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:#4c6a8a;border-bottom:2px solid transparent;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.tab.on{color:#88c0f0;border-bottom-color:#3080d0;background:rgba(48,128,208,0.1)}
+.tab:not(.on):hover{color:#7ca0c4;background:rgba(255,255,255,0.02)}
+#sb-body{flex:1;overflow-y:auto;padding:8px}
+.sechdr{font-size:10px;letter-spacing:2px;font-weight:800;color:#3a5a7a;padding:12px 4px 6px;text-transform:uppercase}
+.bcard{background:linear-gradient(145deg, #0f1f33, #0a1524);border:1px solid #1c3555;border-radius:6px;padding:10px;margin-bottom:6px;cursor:pointer;transition:all .15s ease}
+.bcard:not(.blk):hover{border-color:#3a6a9a;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.bcard.act{border-color:#4a90e2!important;background:linear-gradient(145deg, #142a4a, #0e1e36)!important;box-shadow:0 0 15px rgba(74,144,226,0.2)}
+.bcard.blk{opacity:.4;cursor:not-allowed;filter:grayscale(0.8)}
+.btop{display:flex;align-items:center;gap:8px}
+.bic{font-size:18px;line-height:1}
+.bn{flex:1;font-size:12px;font-weight:700;color:#c0d6eb}
+.bcs{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.bsub{font-size:10px;color:#5c7c9c;margin-top:4px;display:flex;gap:6px;align-items:center}
+.bsub-tag{background:rgba(0,0,0,0.3);padding:2px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.05)}
+
 /* selected building */
-.selhdr{display:flex;align-items:center;gap:8px;padding:8px 6px 8px;border-bottom:1px solid #142436}
-.sr{display:flex;justify-content:space-between;font-size:11px;padding:4px 6px;border-bottom:1px solid #0c1a28}
-.sl{color:#3c5870}
-.abtn{display:block;width:100%;padding:7px;border-radius:4px;border:1px solid;cursor:pointer;font-size:11px;font-weight:600;text-align:center;margin:4px 0;transition:filter .1s;line-height:1.4}
-.abtn:hover{filter:brightness(1.2)}
-.ubtn{background:#0c1e0c;border-color:#1c3818;color:#50a830}
-.dbtn{background:#1e0c0c;border-color:#381818;color:#a83030}
+.selhdr{display:flex;align-items:center;gap:12px;padding:10px 8px 12px;border-bottom:1px solid #1a304d;background:rgba(0,0,0,0.2);border-radius:6px;margin-bottom:10px}
+.sr{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.01)}
+.sl{color:#6c8ca8;font-weight:600}
+.abtn{display:block;width:100%;padding:10px;border-radius:6px;border:1px solid;cursor:pointer;font-size:12px;font-weight:700;text-align:center;margin:6px 0;transition:all .15s;line-height:1.4;text-transform:uppercase;letter-spacing:0.5px}
+.abtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.abtn:active{transform:translateY(0)}
+.ubtn{background:linear-gradient(to bottom, #102a14, #0a1a0c);border-color:#2a5024;color:#60c840}
+.ubtn:hover{border-color:#3a7034;color:#70e850}
+.dbtn{background:linear-gradient(to bottom, #2a1414, #1a0a0a);border-color:#502424;color:#e85050;margin-top:10px}
+.dbtn:hover{border-color:#703434}
+
 /* market */
-.mrow{display:flex;align-items:center;gap:5px;padding:4px 5px;background:#0a1420;border-radius:3px;margin-bottom:3px}
-.mdot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.mn{flex:1;font-size:10px;color:#506070}
-.ma{font-size:10px;font-family:monospace;color:#889aa8;min-width:46px;text-align:right}
-.mp{font-size:9px;color:#b09018;min-width:36px;text-align:right}
-.mbtn{background:#121e2c;border:1px solid #202e3c;border-radius:3px;color:#708020;padding:2px 6px;cursor:pointer;font-size:9px}
-.mbtn:disabled{color:#283040;cursor:default}
-.mbtn:not(:disabled):hover{background:#1a2a38}
-.sabtn{width:100%;padding:7px;background:#121c08;border:1px solid #24300e;border-radius:4px;color:#809820;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px}
-.sabtn:hover{background:#1c2a10}
+.mrow{display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);border-radius:6px;margin-bottom:4px;transition:background .1s}
+.mrow:hover{background:rgba(255,255,255,0.05)}
+.mdot{width:10px;height:10px;border-radius:3px;flex-shrink:0;box-shadow:0 0 5px currentColor}
+.mn{flex:1;font-size:11px;font-weight:600;color:#8ca0b4}
+.ma{font-size:11px;font-family:'JetBrains Mono',monospace;color:#b0c4d8;min-width:46px;text-align:right}
+.mp{font-size:10px;color:#d8b030;min-width:40px;text-align:right;font-weight:700}
+.mbtn{background:#1a2a40;border:1px solid #2a4060;border-radius:4px;color:#80d040;padding:4px 10px;cursor:pointer;font-size:10px;font-weight:700;transition:all .1s}
+.mbtn:disabled{color:#405060;border-color:#203040;background:#101824;cursor:not-allowed}
+.mbtn:not(:disabled):hover{background:#203550;box-shadow:0 0 8px rgba(128,208,64,0.3)}
+.sabtn{width:100%;padding:12px;background:linear-gradient(135deg, #18280a, #0d1604);border:1px solid #304814;border-radius:6px;color:#90d030;font-size:12px;font-weight:800;cursor:pointer;margin-top:12px;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 15px rgba(144,208,48,0.1)}
+.sabtn:hover{background:linear-gradient(135deg, #20350e, #121e06);border-color:#40601a}
+
 /* research */
-.rcard{padding:8px;background:#0a1420;border:1px solid #142030;border-radius:4px;margin-bottom:5px}
-.rdone{border-color:#182c18;background:#0a160a}
-.rlk{opacity:.4}
-.rn{font-size:11px;font-weight:700;color:#98b8d0}
-.rd{font-size:9px;color:#30404e;margin:3px 0 5px}
-.rbtn{background:#0c1808;border:1px solid #1a2e10;border-radius:3px;color:#60a020;padding:3px 10px;cursor:pointer;font-size:10px}
-.rbtn:disabled{background:#0c1418;border-color:#162028;color:#283038;cursor:default}
-.rbtn:not(:disabled):hover{background:#142410}
+.rcard{padding:12px;background:linear-gradient(145deg, #0a1420, #060b12);border:1px solid #1a2a40;border-radius:6px;margin-bottom:8px;position:relative;overflow:hidden}
+.rcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:#305080}
+.rdone{border-color:#183c20;background:linear-gradient(145deg, #0a1a0e, #050d07)}
+.rdone::before{background:#38c050}
+.rlk{opacity:.5;filter:grayscale(1)}
+.rn{font-size:12px;font-weight:800;color:#c0d8f0;letter-spacing:0.5px}
+.rd{font-size:10px;color:#5a7a9a;margin:6px 0 10px;line-height:1.4}
+.rbtn{background:#122414;border:1px solid #244828;border-radius:4px;color:#60c840;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;transition:all .1s}
+.rbtn:disabled{background:#101a24;border-color:#1c2a3a;color:#3a506a;cursor:not-allowed}
+.rbtn:not(:disabled):hover{background:#1a351c;box-shadow:0 0 10px rgba(96,200,64,0.2)}
+
 /* log */
-.le{font-size:10px;color:#485868;margin-bottom:2px;padding:1px 0}
+.le{font-size:11px;color:#6a8ca0;margin-bottom:4px;padding:4px 6px;background:rgba(255,255,255,0.02);border-radius:4px;border-left:2px solid #2a4060}
+
 /* placing badge */
-#pbadge{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#0c2032;border:1px solid #245888;border-radius:20px;padding:6px 18px;font-size:11px;color:#58b8f0;display:none;z-index:50;cursor:pointer;white-space:nowrap;box-shadow:0 2px 16px rgba(36,88,136,.4)}
-#pbadge:hover{background:#102838}
+#pbadge{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(12,28,48,0.95);backdrop-filter:blur(10px);border:1px solid #3a7ca5;border-radius:30px;padding:10px 24px;font-size:13px;font-weight:600;color:#88c0f0;display:none;z-index:50;cursor:pointer;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(58,124,165,0.4);animation:pulse-badge 2s infinite}
+@keyframes pulse-badge { 0%{box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 10px rgba(58,124,165,0.2);} 50%{box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 25px rgba(58,124,165,0.6);} 100%{box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 10px rgba(58,124,165,0.2);} }
+#pbadge:hover{background:#10243d;transform:translateX(-50%) translateY(-2px)}
+
 /* scrollbar */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:#080e18}
-::-webkit-scrollbar-thumb{background:#142030;border-radius:2px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,0.2)}
+::-webkit-scrollbar-thumb{background:#2a4060;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#3a5a8a}
 </style>
 </head>
 <body>
@@ -95,10 +111,10 @@ html,body{height:100%;background:#091520;color:#a0b8cc;font-family:'Segoe UI',sy
       <span class="c-val" id="hdr-cash">$1,500</span>
     </div>
     <div class="pw-blk">
-      <span style="font-size:12px">⚡</span>
+      <span style="font-size:14px;filter:drop-shadow(0 0 4px #38d850)">⚡</span>
       <span id="hdr-pw" style="color:#38d850">0/0 MW</span>
     </div>
-    <div id="rbar"><span style="color:#243848;font-size:10px;padding:0 10px">Build mines on deposits to start producing resources</span></div>
+    <div id="rbar"><span style="color:#4a6a8a;font-size:11px;padding:0 12px;font-weight:600">Build Extractors on glowing deposits to begin</span></div>
   </div>
 
   <div id="main">
@@ -115,17 +131,16 @@ html,body{height:100%;background:#091520;color:#a0b8cc;font-family:'Segoe UI',sy
   </div>
 </div>
 
-<div id="pbadge" onclick="stopPlace()">📌 Placing: <b id="pname"></b> &nbsp;— click a hex &nbsp;·&nbsp; Esc to cancel</div>
+<div id="pbadge" onclick="stopPlace()">📌 Placing: <b id="pname" style="color:#fff"></b> &nbsp;— Select a hex &nbsp;·&nbsp; Esc to cancel</div>
 
 <script>
 'use strict';
 // ═══════════════════════════════════════════════════════ HEX CONSTANTS
-const HR = 27;                           // hex radius (outer)
-const HW = Math.sqrt(3) * HR;           // hex flat-to-flat width  ≈ 46.8
-const HHS = HR * 1.5;                   // vertical step between rows = 40.5
-const GCOLS = 32, GROWS = 22;           // grid size
+const HR = 32;                           
+const HW = Math.sqrt(3) * HR;           
+const HHS = HR * 1.5;                   
+const GCOLS = 64, GROWS = 50;           
 
-// Hex center in world coordinates (pointy-top, odd-r offset)
 function hcen(col, row) {
   return {
     x: HW * col + (row & 1 ? HW / 2 : 0) + HW,
@@ -133,26 +148,25 @@ function hcen(col, row) {
   };
 }
 
-// Draw a pointy-top hex path at screen pos (sx,sy) with radius r
-function hexPath(sx, sy, r) {
+function hexPath(ctx, r) {
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
     const a = Math.PI / 3 * i - Math.PI / 2;
-    i ? ctx.lineTo(sx + r * Math.cos(a), sy + r * Math.sin(a))
-      : ctx.moveTo(sx + r * Math.cos(a), sy + r * Math.sin(a));
+    i ? ctx.lineTo(r * Math.cos(a), r * Math.sin(a))
+      : ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
   }
   ctx.closePath();
 }
 
-// Precompute all hex centers (for fast pixel→hex lookup)
 const HC = Object.create(null);
 for (let row = 0; row < GROWS; row++)
   for (let col = 0; col < GCOLS; col++)
     HC[`${col},${row}`] = hcen(col, row);
 
-// Convert screen point → nearest hex key (null if too far)
 function s2h(sx, sy) {
-  const wx = sx + cam.x, wy = sy + cam.y;
+  // Convert screen coordinates to world coordinates based on zoom
+  const wx = (sx / cam.z) + cam.x;
+  const wy = (sy / cam.z) + cam.y;
   let best = null, bst = (HR * 1.4) * (HR * 1.4);
   for (const key in HC) {
     const { x, y } = HC[key];
@@ -165,104 +179,99 @@ function s2h(sx, sy) {
 }
 
 // ═══════════════════════════════════════════════════════ GAME DATA
-
 const RES = {
-  // Raw (from deposits)
-  fe:   { name:'Iron Ore',     abbr:'Fe',   col:'#c87858', cat:0, sell:3  },
-  si:   { name:'Silicon',      abbr:'Si',   col:'#8ab0d8', cat:0, sell:4  },
-  cu:   { name:'Copper Ore',   abbr:'Cu',   col:'#d08838', cat:0, sell:3  },
-  coal: { name:'Coal',         abbr:'Coal', col:'#909090', cat:0, sell:2  },
-  al:   { name:'Aluminum Ore', abbr:'Al',   col:'#c0c0e0', cat:0, sell:4  },
-  ti:   { name:'Titanium Ore', abbr:'Ti',   col:'#88a8d0', cat:0, sell:6  },
-  oil:  { name:'Oil',          abbr:'Oil',  col:'#7888b8', cat:0, sell:5  },
-  // Processed
-  iron:    { name:'Iron',      abbr:'Ir',   col:'#b8c8d8', cat:1, sell:12 },
-  copper:  { name:'Copper',    abbr:'Cu+',  col:'#e07030', cat:1, sell:15 },
-  steel:   { name:'Steel',     abbr:'Ste',  col:'#60a0c8', cat:1, sell:38 },
-  // Components
-  wire:    { name:'Wire',      abbr:'Wir',  col:'#e8c820', cat:2, sell:22 },
-  gear:    { name:'Gear',      abbr:'Gea',  col:'#88a870', cat:2, sell:45 },
-  circuit: { name:'Circuit',   abbr:'Cir',  col:'#38b850', cat:2, sell:130 },
-  plastic: { name:'Plastic',   abbr:'Pla',  col:'#28c0c0', cat:2, sell:35  },
-  // Advanced
-  engine:    { name:'Engine',    abbr:'Eng', col:'#f04040', cat:3, sell:300 },
-  processor: { name:'Processor', abbr:'Pro', col:'#9048e0', cat:3, sell:500 },
+  fe:   { name:'Iron Ore',     abbr:'Fe',   col:'#d16c47', cat:0, sell:3  },
+  si:   { name:'Silicon',      abbr:'Si',   col:'#8bbdf0', cat:0, sell:4  },
+  cu:   { name:'Copper Ore',   abbr:'Cu',   col:'#de8626', cat:0, sell:3  },
+  coal: { name:'Coal',         abbr:'Coal', col:'#9e9e9e', cat:0, sell:2  },
+  al:   { name:'Aluminum Ore', abbr:'Al',   col:'#c5c5ed', cat:0, sell:4  },
+  ti:   { name:'Titanium Ore', abbr:'Ti',   col:'#9cbfe6', cat:0, sell:6  },
+  oil:  { name:'Crude Oil',    abbr:'Oil',  col:'#798dc7', cat:0, sell:5  },
+  au:   { name:'Gold Ore',     abbr:'Au',   col:'#ffd700', cat:0, sell:12 },
+  u:    { name:'Uranium',      abbr:'U',    col:'#39ff14', cat:0, sell:15 },
+  iron:    { name:'Iron Bar',  abbr:'Ir',   col:'#b3c9de', cat:1, sell:12 },
+  copper:  { name:'Copper Bar',abbr:'Cu+',  col:'#f06b1f', cat:1, sell:15 },
+  steel:   { name:'Steel',     abbr:'Ste',  col:'#63b2e3', cat:1, sell:38 },
+  gold:    { name:'Gold Bar',  abbr:'Au+',  col:'#ffea00', cat:1, sell:48 },
+  wire:    { name:'Cu Wire',   abbr:'Wir',  col:'#f5ce27', cat:2, sell:22 },
+  gear:    { name:'Gear',      abbr:'Gea',  col:'#92ba73', cat:2, sell:45 },
+  circuit: { name:'Circuit',   abbr:'Cir',  col:'#3be354', cat:2, sell:130 },
+  plastic: { name:'Plastic',   abbr:'Pla',  col:'#29d6d6', cat:2, sell:35  },
+  gwire:   { name:'Gold Wire', abbr:'GWr',  col:'#ffb300', cat:2, sell:120 },
+  nfuel:   { name:'Nuc. Fuel', abbr:'Ncl',  col:'#2bd119', cat:2, sell:300 },
+  engine:    { name:'Engine',    abbr:'Eng', col:'#f23838', cat:3, sell:300 },
+  processor: { name:'Processor', abbr:'Pro', col:'#a14df7', cat:3, sell:500 },
+  qchip:     { name:'Quant. Chip',abbr:'QCh', col:'#0ff0fc', cat:3, sell:1500 },
 };
 
-// Deposit locations (deterministically placed across the map)
-const DEP = {
-  // Iron (Fe) clusters
-  "3,2":"fe","4,2":"fe","3,3":"fe","5,3":"fe","4,4":"fe","3,4":"fe",
-  "13,8":"fe","14,8":"fe","13,9":"fe","15,9":"fe","14,10":"fe",
-  "25,4":"fe","26,4":"fe","25,5":"fe","27,5":"fe","26,6":"fe",
-  "8,18":"fe","9,18":"fe","8,19":"fe","10,19":"fe","9,20":"fe",
-  // Silicon (Si) clusters
-  "8,1":"si","9,1":"si","8,2":"si","10,2":"si","9,3":"si",
-  "20,6":"si","21,6":"si","20,7":"si","22,7":"si","21,8":"si",
-  "28,15":"si","29,15":"si","28,16":"si","30,16":"si","29,17":"si",
-  // Copper (Cu) clusters
-  "5,10":"cu","6,10":"cu","5,11":"cu","7,11":"cu","6,12":"cu",
-  "17,4":"cu","18,4":"cu","17,5":"cu","19,5":"cu","18,6":"cu",
-  "26,13":"cu","27,13":"cu","26,14":"cu","28,14":"cu","27,15":"cu",
-  // Coal clusters
-  "2,7":"coal","3,7":"coal","2,8":"coal","4,8":"coal","3,9":"coal","2,9":"coal",
-  "14,3":"coal","15,3":"coal","14,4":"coal","16,4":"coal","15,5":"coal",
-  "22,14":"coal","23,14":"coal","22,15":"coal","24,15":"coal","23,16":"coal",
-  "10,15":"coal","11,15":"coal","10,16":"coal","12,16":"coal",
-  // Aluminum (Al) clusters
-  "10,5":"al","11,5":"al","10,6":"al","12,6":"al","11,7":"al",
-  "21,11":"al","22,11":"al","21,12":"al","23,12":"al","22,13":"al",
-  // Titanium (Ti) clusters
-  "4,15":"ti","5,15":"ti","4,16":"ti","6,16":"ti","5,17":"ti",
-  "24,9":"ti","25,9":"ti","24,10":"ti","26,10":"ti","25,11":"ti",
-  // Oil clusters
-  "7,19":"oil","8,19":"oil","7,20":"oil","9,20":"oil","8,21":"oil",
-  "18,16":"oil","19,16":"oil","18,17":"oil","20,17":"oil","19,18":"oil",
-  "29,7":"oil","30,7":"oil","29,8":"oil","31,8":"oil","30,9":"oil",
-};
+const DEP = Object.create(null);
+const depTypes = ['fe','fe','si','cu','cu','coal','coal','al','ti','oil','oil','au','u'];
+function hash(x, y) { return Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453); }
 
-// Building circle colors
+for (let r = 0; r < GROWS; r++) {
+  for (let c = 0; c < GCOLS; c++) {
+    let h1 = hash(c, r);
+    let h2 = hash(Math.floor(c/5), Math.floor(r/5)); 
+    if (h2 - Math.floor(h2) > 0.65) {
+      if (h1 - Math.floor(h1) > 0.45) {
+        let distanceFactor = (c + r) / (GCOLS + GROWS); 
+        let availableTypes = Math.floor(5 + distanceFactor * (depTypes.length - 5)); 
+        availableTypes = Math.min(availableTypes, depTypes.length);
+        let typeIdx = Math.floor((h2 * 100) % availableTypes);
+        DEP[`${c},${r}`] = depTypes[typeIdx];
+      }
+    }
+  }
+}
+const startClusters = { "2,2":"fe","3,2":"coal","2,3":"cu","4,3":"si","3,4":"fe","2,4":"coal" };
+Object.assign(DEP, startClusters);
+
 const BCOL = {
   fe_mine:'#6a4030', si_mine:'#2848a0', cu_mine:'#904820', coal_mine:'#424242',
-  al_mine:'#505898', ti_mine:'#2c5480', oil_pump:'#283858',
-  power_plant:'#1c3a80',
-  iron_smelt:'#883020', copper_smelt:'#984018', steel_mill:'#1c4888',
-  wire_mill:'#806010', gear_shop:'#384820',
+  al_mine:'#505898', ti_mine:'#2c5480', oil_pump:'#283858', au_mine:'#8a711c', u_mine:'#1e5c14',
+  power_plant:'#1c3a80', nuc_plant:'#0f3d13',
+  iron_smelt:'#883020', copper_smelt:'#984018', steel_mill:'#1c4888', gold_smelt:'#8a631c',
+  wire_mill:'#806010', gear_shop:'#384820', gwire_mill:'#996500', centrifuge:'#164a2b',
   oil_refinery:'#1c5848', circuit_fab:'#1c5830',
-  engine_plant:'#681818', chip_fab:'#481868',
+  engine_plant:'#681818', chip_fab:'#481868', q_lab:'#124057'
 };
 
 const BLDGS = {
-  // ── TIER 0: Extraction ──
-  fe_mine:   { name:'Iron Mine',      ic:'⛏', t:0, dep:'fe',   cost:80,  pw:0,  pro:[{r:'fe',a:2}],     con:[],                                 desc:'Mines iron ore (Fe) deposits' },
-  si_mine:   { name:'Silicon Mine',   ic:'⛏', t:0, dep:'si',   cost:100, pw:0,  pro:[{r:'si',a:2}],     con:[],                                 desc:'Mines silicon (Si) deposits' },
-  cu_mine:   { name:'Copper Mine',    ic:'⛏', t:0, dep:'cu',   cost:100, pw:0,  pro:[{r:'cu',a:2}],     con:[],                                 desc:'Mines copper ore (Cu) deposits' },
-  coal_mine: { name:'Coal Mine',      ic:'⛏', t:0, dep:'coal', cost:80,  pw:0,  pro:[{r:'coal',a:3}],   con:[],                                 desc:'Mines coal deposits' },
-  al_mine:   { name:'Aluminum Mine',  ic:'⛏', t:0, dep:'al',   cost:120, pw:0,  pro:[{r:'al',a:2}],     con:[],                                 desc:'Mines aluminum ore (Al) deposits' },
-  ti_mine:   { name:'Titanium Mine',  ic:'⛏', t:0, dep:'ti',   cost:200, pw:0,  pro:[{r:'ti',a:1}],     con:[],                                 desc:'Mines titanium ore (Ti) deposits' },
-  oil_pump:  { name:'Oil Pump',       ic:'🛢', t:0, dep:'oil',  cost:280, pw:0,  pro:[{r:'oil',a:1}],    con:[],                                 desc:'Pumps crude oil deposits' },
-  power_plant:{ name:'Power Plant',   ic:'⚡', t:0, dep:null,   cost:380, pw:+20,pro:[],                  con:[{r:'coal',a:3}],                   desc:'Burns coal → +20 MW power grid' },
-  // ── TIER 1: Processing ──
-  iron_smelt:  { name:'Iron Smelter',    ic:'🔥', t:1, dep:null, cost:320,  pw:-3, pro:[{r:'iron',a:2}],    con:[{r:'fe',a:3},  {r:'coal',a:1}],    desc:'Smelts Fe ore + coal → iron' },
-  copper_smelt:{ name:'Copper Smelter',  ic:'🔥', t:1, dep:null, cost:320,  pw:-3, pro:[{r:'copper',a:2}],  con:[{r:'cu',a:3},  {r:'coal',a:1}],    desc:'Smelts Cu ore + coal → copper' },
-  steel_mill:  { name:'Steel Mill',      ic:'🏭', t:1, dep:null, cost:650,  pw:-5, pro:[{r:'steel',a:1}],   con:[{r:'iron',a:3},{r:'coal',a:2}],    desc:'Iron + coal → steel' },
-  // ── TIER 2: Manufacturing ──
-  wire_mill:   { name:'Wire Mill',       ic:'〰', t:2, dep:null, cost:480,  pw:-2, pro:[{r:'wire',a:3}],    con:[{r:'copper',a:2}],                  desc:'Draws copper into wire' },
-  gear_shop:   { name:'Gear Workshop',   ic:'⚙',  t:2, dep:null, cost:550,  pw:-3, pro:[{r:'gear',a:2}],    con:[{r:'steel',a:3}],                   desc:'Machines steel into gears' },
-  oil_refinery:{ name:'Oil Refinery',    ic:'🏗', t:2, dep:null, cost:1300, pw:-4, pro:[{r:'plastic',a:2}], con:[{r:'oil',a:2}],                     desc:'Refines oil → plastic', req:'petrochemicals' },
-  circuit_fab: { name:'Circuit Fab',     ic:'🔌', t:2, dep:null, cost:1700, pw:-5, pro:[{r:'circuit',a:1}], con:[{r:'wire',a:4},{r:'si',a:2}],       desc:'Wire + Si → circuit boards', req:'electronics' },
-  // ── TIER 3: Advanced ──
-  engine_plant:{ name:'Engine Plant',    ic:'🔴', t:3, dep:null, cost:2800, pw:-6, pro:[{r:'engine',a:1}],   con:[{r:'gear',a:4},{r:'steel',a:5}],    desc:'Gear + steel → industrial engines', req:'mechanical' },
-  chip_fab:    { name:'Chip Factory',    ic:'🟣', t:3, dep:null, cost:4800, pw:-8, pro:[{r:'processor',a:1}],con:[{r:'circuit',a:3},{r:'si',a:2}],   desc:'Circuits + Si → processors', req:'computing' },
+  fe_mine:   { name:'Iron Mine',      ic:'⛏', t:0, dep:'fe',   cost:80,  pw:0,  pro:[{r:'fe',a:2}],     con:[] },
+  si_mine:   { name:'Silicon Mine',   ic:'⛏', t:0, dep:'si',   cost:100, pw:0,  pro:[{r:'si',a:2}],     con:[] },
+  cu_mine:   { name:'Copper Mine',    ic:'⛏', t:0, dep:'cu',   cost:100, pw:0,  pro:[{r:'cu',a:2}],     con:[] },
+  coal_mine: { name:'Coal Mine',      ic:'⛏', t:0, dep:'coal', cost:80,  pw:0,  pro:[{r:'coal',a:3}],   con:[] },
+  al_mine:   { name:'Aluminum Mine',  ic:'⛏', t:0, dep:'al',   cost:120, pw:0,  pro:[{r:'al',a:2}],     con:[] },
+  ti_mine:   { name:'Titanium Mine',  ic:'⛏', t:0, dep:'ti',   cost:200, pw:0,  pro:[{r:'ti',a:1}],     con:[] },
+  oil_pump:  { name:'Oil Pump',       ic:'🛢', t:0, dep:'oil',  cost:280, pw:0,  pro:[{r:'oil',a:1}],    con:[] },
+  au_mine:   { name:'Gold Mine',      ic:'⛏', t:0, dep:'au',   cost:450, pw:0,  pro:[{r:'au',a:1}],     con:[] },
+  u_mine:    { name:'Uranium Mine',   ic:'⛏', t:0, dep:'u',    cost:600, pw:0,  pro:[{r:'u',a:1}],      con:[] },
+  power_plant:{ name:'Coal Plant',    ic:'🏭', t:0, dep:null,   cost:380, pw:+25,pro:[],                  con:[{r:'coal',a:3}] },
+  iron_smelt:  { name:'Iron Smelter',  ic:'🔥', t:1, dep:null, cost:320,  pw:-4, pro:[{r:'iron',a:2}],    con:[{r:'fe',a:3},  {r:'coal',a:1}] },
+  copper_smelt:{ name:'Copper Smelter',ic:'🔥', t:1, dep:null, cost:320,  pw:-4, pro:[{r:'copper',a:2}],  con:[{r:'cu',a:3},  {r:'coal',a:1}] },
+  gold_smelt:  { name:'Gold Smelter',  ic:'🔥', t:1, dep:null, cost:950,  pw:-8, pro:[{r:'gold',a:2}],    con:[{r:'au',a:3},  {r:'coal',a:2}] },
+  steel_mill:  { name:'Steel Mill',    ic:'🏗', t:1, dep:null, cost:650,  pw:-6, pro:[{r:'steel',a:1}],   con:[{r:'iron',a:3},{r:'coal',a:2}] },
+  wire_mill:   { name:'Wire Mill',     ic:'〰', t:2, dep:null, cost:480,  pw:-3, pro:[{r:'wire',a:3}],    con:[{r:'copper',a:2}] },
+  gwire_mill:  { name:'Gold Wire Mill',ic:'〰', t:2, dep:null, cost:1400, pw:-6, pro:[{r:'gwire',a:2}],   con:[{r:'gold',a:2}] },
+  gear_shop:   { name:'Gear Workshop', ic:'⚙',  t:2, dep:null, cost:550,  pw:-4, pro:[{r:'gear',a:2}],    con:[{r:'steel',a:3}] },
+  oil_refinery:{ name:'Oil Refinery',  ic:'⚗️', t:2, dep:null, cost:1300, pw:-6, pro:[{r:'plastic',a:2}], con:[{r:'oil',a:2}], req:'petro' },
+  circuit_fab: { name:'Circuit Fab',   ic:'🔌', t:2, dep:null, cost:1700, pw:-8, pro:[{r:'circuit',a:1}], con:[{r:'wire',a:4},{r:'si',a:2}], req:'electro' },
+  centrifuge:  { name:'Centrifuge',    ic:'🌀', t:2, dep:null, cost:2800, pw:-15,pro:[{r:'nfuel',a:1}],   con:[{r:'u',a:4}], req:'nuclear' },
+  engine_plant:{ name:'Engine Plant',  ic:'🔴', t:3, dep:null, cost:2800, pw:-10,pro:[{r:'engine',a:1}],   con:[{r:'gear',a:4},{r:'steel',a:5}], req:'mech' },
+  chip_fab:    { name:'Chip Factory',  ic:'🟣', t:3, dep:null, cost:4800, pw:-12,pro:[{r:'processor',a:1}],con:[{r:'circuit',a:3},{r:'si',a:2}], req:'compute' },
+  q_lab:       { name:'Quantum Lab',   ic:'💠', t:3, dep:null, cost:12000,pw:-30,pro:[{r:'qchip',a:1}],    con:[{r:'processor',a:1},{r:'gwire',a:3}], req:'quantum' },
+  nuc_plant:   { name:'Nuclear Plant', ic:'☢️', t:3, dep:null, cost:8500, pw:+250,pro:[],                 con:[{r:'nfuel',a:1}], req:'nuclear' },
 };
 
-const TIER_NAMES = ['EXTRACTION','PROCESSING','MANUFACTURING','ADVANCED'];
+const TIER_NAMES = ['EXTRACTION & POWER','PROCESSING','MANUFACTURING','ADVANCED & HI-TECH'];
 
 const RESEARCH = [
-  { id:'petrochemicals', n:'Petrochemicals', cost:2000, desc:'Unlocks Oil Refinery (oil → plastic)' },
-  { id:'electronics',    n:'Electronics',    cost:3000, desc:'Unlocks Circuit Fabricator (wire+Si → circuit)' },
-  { id:'mechanical',     n:'Mechanical Eng', cost:4000, desc:'Unlocks Engine Plant (gear+steel → engine)' },
-  { id:'computing',      n:'Computing',      cost:8000, desc:'Unlocks Chip Factory (circuit+Si → processor)', req:['electronics'] },
+  { id:'petro',   n:'Petrochemicals', cost:2000, desc:'Unlocks Oil Refinery (Crude Oil → Plastic)' },
+  { id:'electro', n:'Electronics',    cost:3000, desc:'Unlocks Circuit Fabricator (Wire + Si → Circuit)' },
+  { id:'mech',    n:'Mechanical Eng', cost:4000, desc:'Unlocks Engine Plant (Gear + Steel → Engine)' },
+  { id:'compute', n:'Computing',      cost:8000, desc:'Unlocks Chip Factory (Circuit + Si → Processor)', req:['electro'] },
+  { id:'nuclear', n:'Nuclear Tech',   cost:15000,desc:'Unlocks Centrifuge & Nuclear Plant (Uranium processing)' },
+  { id:'quantum', n:'Quantum Tech',   cost:35000,desc:'Unlocks Quantum Lab (Processor + Gold Wire → Q-Chip)', req:['compute'] },
 ];
 
 // ═══════════════════════════════════════════════════════ STATE
@@ -272,19 +281,20 @@ const fmtR = n => Math.abs(n) < 0.05 ? '' : (n > 0 ? '+' : '') + n.toFixed(1) + 
 let G = {
   money: 1500,
   res: Object.fromEntries(Object.keys(RES).map(r => [r, 0])),
-  grid: Object.create(null),    // "col,row" → {id, lv}
+  grid: Object.create(null),
   power: { gen: 0, con: 0 },
   research: [],
   tick: 0,
   totalEarned: 0,
 };
 
-let cam     = { x: 0, y: 0 };
+let cam     = { x: 0, y: 0, z: 1.0 }; // Added zoom level
 let placing = null;
 let selKey  = null;
 let activeTab = 'build';
 let glog    = [];
 let parts   = [];
+let fx      = []; // New effects array for placement shockwaves
 let dragSt  = null;
 let animT   = 0;
 
@@ -317,7 +327,7 @@ function calcRates() {
 }
 function addLog(msg) {
   glog.unshift({ msg, id: Date.now() + Math.random() });
-  if (glog.length > 60) glog.length = 60;
+  if (glog.length > 80) glog.length = 80;
   if (activeTab === 'log') renderContent();
 }
 
@@ -335,17 +345,16 @@ function gameTick() {
       b.con.forEach(x => G.res[x.r] -= x.a * lv);
       b.pro.forEach(x => {
         G.res[x.r] = (G.res[x.r] || 0) + x.a * lv;
-        // Spawn particles at world pos
         const { x: wx, y: wy } = HC[key];
         for (let i = 0; i < Math.min(x.a * lv, 5); i++) {
           parts.push({
-            wx: wx + (Math.random() - .5) * 12,
-            wy: wy + (Math.random() - .5) * 12,
+            wx: wx + (Math.random() - .5) * 16,
+            wy: wy + (Math.random() - .5) * 16,
             vx: (Math.random() - .5) * 1.6,
-            vy: -(0.6 + Math.random() * 1.8),
+            vy: -(0.8 + Math.random() * 2),
             col: RES[x.r].col,
-            life: 55 + Math.random() * 30,
-            max: 85,
+            life: 60 + Math.random() * 40,
+            max: 100,
           });
         }
       });
@@ -369,74 +378,112 @@ function drawFrame(t) {
   animT = t;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background
-  ctx.fillStyle = '#091520';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Apply Camera Transform (Zoom and Pan)
+  ctx.save();
+  ctx.scale(cam.z, cam.z);
+  ctx.translate(-cam.x, -cam.y);
 
-  // Slight vignette
-  const vig = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height*0.3,
-                                        canvas.width/2, canvas.height/2, canvas.height*0.9);
-  vig.addColorStop(0, 'rgba(0,0,0,0)');
-  vig.addColorStop(1, 'rgba(0,0,8,0.35)');
-  ctx.fillStyle = vig; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw hexes (culled)
-  const pbData = placing ? BLDGS[placing] : null;
-  for (const [key, { x: wx, y: wy }] of Object.entries(HC)) {
-    const sx = wx - cam.x, sy = wy - cam.y;
-    if (sx < -HR * 2 || sx > canvas.width + HR * 2 || sy < -HR * 2 || sy > canvas.height + HR * 2) continue;
-    drawHex(key, sx, sy, pbData, t);
+  // Background grid dots
+  ctx.fillStyle = 'rgba(100, 150, 255, 0.05)';
+  const viewW = canvas.width / cam.z;
+  const viewH = canvas.height / cam.z;
+  let bgX = cam.x - (cam.x % 40);
+  let bgY = cam.y - (cam.y % 40);
+  
+  for(let x = bgX; x < cam.x + viewW; x += 40) {
+      for(let y = bgY; y < cam.y + viewH; y += 40) {
+          ctx.fillRect(x, y, 2, 2);
+      }
   }
 
-  // Particles (world → screen)
+  const pbData = placing ? BLDGS[placing] : null;
+  
+  // Render Hexes (with Zoom culling)
+  for (const [key, { x: wx, y: wy }] of Object.entries(HC)) {
+    if (wx < cam.x - HR * 2 || wx > cam.x + viewW + HR * 2 || 
+        wy < cam.y - HR * 2 || wy > cam.y + viewH + HR * 2) continue;
+    drawHex(key, wx, wy, pbData, t);
+  }
+
+  // Render Visual Effects (Shockwaves)
+  for (let i = fx.length - 1; i >= 0; i--) {
+    const e = fx[i];
+    const prog = e.life / e.max;
+    
+    ctx.beginPath();
+    ctx.arc(e.wx, e.wy, HR * (prog * 1.5 + 0.5), 0, 6.28);
+    ctx.strokeStyle = `rgba(100, 255, 100, ${1 - prog})`;
+    ctx.lineWidth = 6 * (1 - prog);
+    ctx.stroke();
+
+    e.life++;
+    if (e.life > e.max) fx.splice(i, 1);
+  }
+
+  // Render Particles
   for (let i = parts.length - 1; i >= 0; i--) {
     const p = parts[i];
-    const alpha = (p.life / p.max) * 0.85;
-    ctx.globalAlpha = alpha;
+    const alpha = (p.life / p.max);
+    
+    ctx.globalAlpha = alpha * 0.5;
     ctx.fillStyle = p.col;
-    ctx.beginPath();
-    ctx.arc(p.wx - cam.x, p.wy - cam.y, 2, 0, 6.28);
-    ctx.fill();
-    p.wx += p.vx; p.wy += p.vy; p.vy *= 0.96; p.vx *= 0.97; p.life--;
+    ctx.beginPath(); ctx.arc(p.wx, p.wy, 4, 0, 6.28); ctx.fill();
+
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(p.wx, p.wy, 1.5, 0, 6.28); ctx.fill();
+    
+    p.wx += p.vx; p.wy += p.vy; p.vy *= 0.95; p.vx *= 0.95; p.life--;
     if (p.life <= 0) parts.splice(i, 1);
   }
-  ctx.globalAlpha = 1;
-
+  
+  ctx.restore(); // Restore context to screen coordinates
   requestAnimationFrame(drawFrame);
 }
 
-function drawHex(key, sx, sy, pbData, t) {
+function drawHex(key, wx, wy, pbData, t) {
   const dep  = DEP[key];
   const cell = G.grid[key];
   const isSel = selKey === key;
   const canPlace = pbData && !cell && (pbData.dep ? dep === pbData.dep : !dep);
 
+  ctx.save();
+  ctx.translate(wx, wy);
+
   // Hex fill
-  hexPath(sx, sy, HR - 1);
-  ctx.fillStyle = dep ? '#0e2036' : '#0d1a2a';
+  hexPath(ctx, HR - 2);
+  ctx.fillStyle = dep ? 'rgba(20,45,75,0.7)' : 'rgba(10,25,45,0.4)';
   ctx.fill();
 
-  // Hex border
-  hexPath(sx, sy, HR - 1);
-  ctx.strokeStyle = isSel ? '#f0c840' : canPlace ? '#38d050' : '#162840';
-  ctx.lineWidth   = isSel ? 2.5 : canPlace ? 1.5 : 0.75;
+  // Glowing borders
+  hexPath(ctx, HR - 2);
+  ctx.strokeStyle = isSel ? '#f0d050' : canPlace ? '#38e050' : dep ? 'rgba(60,110,160,0.6)' : 'rgba(30,60,95,0.3)';
+  ctx.lineWidth   = isSel ? 3 : canPlace ? 2 : 1;
+  if(isSel || canPlace) {
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.shadowBlur = 10;
+  }
   ctx.stroke();
+  ctx.shadowBlur = 0;
 
-  // Valid placement highlight
+  // Valid placement highlight pulse
   if (canPlace) {
-    hexPath(sx, sy, HR - 2);
-    ctx.fillStyle = 'rgba(56,208,80,0.09)';
+    const pulse = (Math.sin(t * 0.005) + 1) * 0.5;
+    hexPath(ctx, HR - 3);
+    ctx.fillStyle = `rgba(56,208,80,${0.1 + pulse * 0.15})`;
     ctx.fill();
   }
 
   // Deposit label
   if (dep && !cell) {
     const rv = RES[dep];
-    ctx.fillStyle = '#4878a0';
-    ctx.font = 'bold 9px monospace';
+    ctx.shadowColor = rv.col;
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = rv.col;
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(rv.abbr, sx, sy);
+    ctx.fillText(rv.abbr, 0, 0);
+    ctx.shadowBlur = 0;
   }
 
   // Building
@@ -448,70 +495,85 @@ function drawHex(key, sx, sy, pbData, t) {
     const bcol   = BCOL[cell.id] || '#283848';
     const cr     = Math.round(HR * 0.65);
 
-    // Selection glow
+    // PLACEMENT ANIMATION (Bounce effect)
+    let bScale = 1;
+    if (cell.placedAt) {
+        const age = Date.now() - cell.placedAt;
+        if (age < 400) {
+            const p = age / 400;
+            // Elastic ease out
+            bScale = 1 + Math.sin(p * Math.PI * 3) * Math.exp(-p * 6) * 0.5;
+        } else {
+            delete cell.placedAt;
+        }
+    }
+    
+    ctx.scale(bScale, bScale);
+
     if (isSel) {
-      const gv = (Math.sin(t * 0.003) + 1) * 0.5;
-      ctx.shadowColor = '#f0c840';
-      ctx.shadowBlur  = 10 + gv * 8;
+      const gv = (Math.sin(t * 0.004) + 1) * 0.5;
+      ctx.shadowColor = '#f0d050';
+      ctx.shadowBlur  = 15 + gv * 10;
     }
 
-    // Shadow
-    ctx.beginPath(); ctx.arc(sx + 2, sy + 2, cr, 0, 6.28);
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fill();
-    if (isSel) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+    // Building Base
+    ctx.beginPath(); ctx.arc(0, 0, cr, 0, 6.28);
+    const bg = ctx.createLinearGradient(0, -cr, 0, cr);
+    bg.addColorStop(0, bcol);
+    bg.addColorStop(1, '#050a10');
+    ctx.fillStyle = bg; ctx.fill();
 
-    // Main circle body
-    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
-    ctx.fillStyle = bcol; ctx.fill();
-
-    // Radial highlight (top-left catch light)
-    const g = ctx.createRadialGradient(sx - cr * 0.35, sy - cr * 0.35, 0, sx, sy, cr);
-    g.addColorStop(0, 'rgba(255,255,255,0.22)');
-    g.addColorStop(0.6, 'rgba(255,255,255,0.04)');
-    g.addColorStop(1, 'rgba(0,0,0,0.18)');
-    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
+    // Inner Glow
+    const g = ctx.createRadialGradient(-cr*0.3, -cr*0.3, 0, 0, 0, cr);
+    g.addColorStop(0, 'rgba(255,255,255,0.25)');
+    g.addColorStop(1, 'rgba(0,0,0,0.4)');
     ctx.fillStyle = g; ctx.fill();
 
+    if (isSel) ctx.shadowBlur = 0;
+
     // Circle border
-    ctx.beginPath(); ctx.arc(sx, sy, cr, 0, 6.28);
-    ctx.strokeStyle = active ? 'rgba(255,255,255,0.28)' : 'rgba(220,60,60,0.5)';
-    ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, cr, 0, 6.28);
+    ctx.strokeStyle = active ? 'rgba(150,220,255,0.4)' : 'rgba(250,80,80,0.6)';
+    ctx.lineWidth = 2; ctx.stroke();
 
     // Icon
-    ctx.font = `${Math.round(cr * 0.9)}px serif`;
+    ctx.font = `${Math.round(cr * 1.1)}px serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 3;
-    ctx.fillText(bd.ic, sx, sy + 1);
-    ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+    ctx.fillText(bd.ic, 0, 1);
 
-    // Level badge (top-right)
+    // Level indicator
     if (lv > 1) {
-      const bx = sx + cr * 0.68, by = sy - cr * 0.68;
-      ctx.fillStyle = '#091520';
-      ctx.beginPath(); ctx.arc(bx, by, 7, 0, 6.28); ctx.fill();
-      ctx.strokeStyle = '#e0c030'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.fillStyle = '#e0c030'; ctx.font = 'bold 6px monospace';
+      const bx = cr * 0.7, by = -cr * 0.7;
+      ctx.fillStyle = '#0a1524';
+      ctx.beginPath(); ctx.arc(bx, by, 8, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#f0c840'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#f0c840'; ctx.font = 'bold 8px "JetBrains Mono", monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(lv, bx, by);
+      ctx.fillText(lv, bx, by+1);
     }
 
-    // Status dot (top-right corner of hex)
-    ctx.beginPath(); ctx.arc(sx + cr - 3, sy - cr + 3, 3, 0, 6.28);
+    // Status dot
+    ctx.shadowColor = active ? '#38f060' : '#f03838';
+    ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(cr - 4, -cr + 4, 3.5, 0, 6.28);
     ctx.fillStyle = active ? '#38f060' : '#f03838'; ctx.fill();
+    ctx.shadowBlur = 0;
 
-    // Rate label (below building circle)
+    // Rate label
     if (bd.pro.length > 0) {
       const rate = bd.pro[0].a * lv;
       const rr = RES[bd.pro[0].r];
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      const lw = ctx.measureText(rate + '/s').width + 6;
-      ctx.fillRect(sx - lw / 2, sy + cr + 2, lw, 11);
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      const str = rate + '/s';
+      ctx.font = 'bold 9px "JetBrains Mono", monospace';
+      const lw = ctx.measureText(str).width + 8;
+      ctx.beginPath(); ctx.roundRect(-lw/2, cr + 3, lw, 14, 4); ctx.fill();
       ctx.fillStyle = rr.col;
-      ctx.font = '7px monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.fillText(rate + '/s', sx, sy + cr + 3);
+      ctx.fillText(str, 0, cr + 6);
     }
   }
+  ctx.restore();
 }
 
 // ═══════════════════════════════════════════════════════ INPUT
@@ -524,7 +586,9 @@ cw.addEventListener('mousedown', e => {
 });
 window.addEventListener('mousemove', e => {
   if (!dragSt) return;
-  const dx = e.clientX - dragSt.ox, dy = e.clientY - dragSt.oy;
+  // Account for zoom level when panning!
+  const dx = (e.clientX - dragSt.ox) / cam.z; 
+  const dy = (e.clientY - dragSt.oy) / cam.z;
   if (Math.abs(dx) + Math.abs(dy) > 4) dragSt.moved = true;
   if (dragSt.moved) { cam.x = dragSt.cx - dx; cam.y = dragSt.cy - dy; clampCam(); }
 });
@@ -538,61 +602,79 @@ window.addEventListener('mouseup', e => {
   dragSt = null;
   cw.classList.remove('dragging');
 });
+
+// SCROLL TO ZOOM
 cw.addEventListener('wheel', e => {
   e.preventDefault();
-  cam.x += e.deltaX; cam.y += e.deltaY; clampCam();
+  
+  const zoomSpeed = 0.0015;
+  const prevZ = cam.z;
+  
+  cam.z -= e.deltaY * zoomSpeed;
+  cam.z = Math.max(0.4, Math.min(2.5, cam.z)); // Zoom bounds
+
+  // Math to ensure we zoom IN on the exact spot the mouse is hovering over
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left;
+  const my = e.clientY - r.top;
+
+  cam.x += (mx / prevZ) - (mx / cam.z);
+  cam.y += (my / prevZ) - (my / cam.z);
+
+  clampCam();
 }, { passive: false });
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { stopPlace(); selKey = null; renderContent(); }
-  // Arrow pan
-  const sp = 24;
+  const sp = 40 / cam.z;
   if (e.key === 'ArrowLeft')  { cam.x -= sp; clampCam(); }
   if (e.key === 'ArrowRight') { cam.x += sp; clampCam(); }
   if (e.key === 'ArrowUp')    { cam.y -= sp; clampCam(); }
   if (e.key === 'ArrowDown')  { cam.y += sp; clampCam(); }
 });
 
-// Touch support
-cw.addEventListener('touchstart', e => {
-  if (e.touches.length !== 1) return;
-  dragSt = { ox: e.touches[0].clientX, oy: e.touches[0].clientY, cx: cam.x, cy: cam.y, moved: false };
-}, { passive: true });
-cw.addEventListener('touchmove', e => {
-  if (!dragSt || e.touches.length !== 1) return;
-  const dx = e.touches[0].clientX - dragSt.ox, dy = e.touches[0].clientY - dragSt.oy;
-  if (Math.abs(dx) + Math.abs(dy) > 4) dragSt.moved = true;
-  if (dragSt.moved) { cam.x = dragSt.cx - dx; cam.y = dragSt.cy - dy; clampCam(); }
-}, { passive: true });
-cw.addEventListener('touchend', e => {
-  if (!dragSt) return;
-  if (!dragSt.moved) {
-    const r = canvas.getBoundingClientRect();
-    const t = e.changedTouches[0];
-    const h = s2h(t.clientX - r.left, t.clientY - r.top);
-    if (h) onHexClick(h.col, h.row, h.key);
-  }
-  dragSt = null;
-});
-
 function clampCam() {
   const worldW = GCOLS * HW + HW * 1.5;
   const worldH = GROWS * HHS + HR * 2.5;
-  cam.x = Math.max(0, Math.min(cam.x, Math.max(0, worldW - canvas.width)));
-  cam.y = Math.max(0, Math.min(cam.y, Math.max(0, worldH - canvas.height)));
+  const viewW = canvas.width / cam.z;
+  const viewH = canvas.height / cam.z;
+  
+  cam.x = Math.max(-viewW/2, Math.min(cam.x, worldW - viewW/2));
+  cam.y = Math.max(-viewH/2, Math.min(cam.y, worldH - viewH/2));
 }
 
 function onHexClick(col, row, key) {
   const dep = DEP[key];
   if (placing) {
     const pb = BLDGS[placing];
-    if (G.grid[key])              { addLog('⚠ Hex already occupied'); return; }
-    if (pb.dep && dep !== pb.dep) { addLog(`⚠ ${pb.name} must be placed on a ${(RES[pb.dep]||{}).abbr||pb.dep} deposit`); return; }
-    if (!pb.dep && dep)            { addLog('⚠ Processing buildings must go on empty hexes (no deposit)'); return; }
+    if (G.grid[key])              { addLog('⚠️ Hex already occupied'); return; }
+    if (pb.dep && dep !== pb.dep) { addLog(`⚠️ Must place on ${(RES[pb.dep]||{}).abbr||pb.dep} deposit`); return; }
+    if (!pb.dep && dep)           { addLog('⚠️ Processing buildings go on empty hexes'); return; }
     const cost = bldCost(placing);
-    if (G.money < cost)            { addLog(`⚠ Not enough cash — need $${fmt(cost)}`); return; }
-    G.grid[key] = { id: placing, lv: 1 };
+    if (G.money < cost)           { addLog(`⚠️ Need $${fmt(cost)}`); return; }
+    
+    // Build it and mark creation time for animation
+    G.grid[key] = { id: placing, lv: 1, placedAt: Date.now() };
     G.money -= cost;
-    addLog(`✓ Built ${pb.name} at (${col},${row})`);
+    addLog(`✅ Built ${pb.name}`);
+
+    // PLACEMENT FX: Shockwave + Particle Burst
+    const wx = HC[key].x;
+    const wy = HC[key].y;
+    fx.push({ wx, wy, life: 0, max: 25 }); // Add shockwave
+    
+    // Add sparks
+    for(let i=0; i<15; i++) {
+        parts.push({
+            wx, wy,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            col: '#ffffff',
+            life: 20 + Math.random() * 20,
+            max: 40
+        });
+    }
+
     updateUI();
   } else {
     selKey = selKey === key ? null : key;
@@ -623,14 +705,13 @@ function setTab(t) {
 }
 
 function updateUI() {
-  // Cash + power
   document.getElementById('hdr-cash').textContent = '$' + fmt(G.money);
   const pw = G.power;
   const pe = document.getElementById('hdr-pw');
   pe.textContent = `${pw.gen}/${pw.con} MW`;
-  pe.style.color = pw.gen >= pw.con ? '#38d850' : '#f03838';
+  pe.style.color = pw.gen >= pw.con ? '#38d850' : '#f04c4c';
+  pe.style.textShadow = pw.gen >= pw.con ? '0 0 8px rgba(56,216,80,0.4)' : '0 0 8px rgba(240,76,76,0.4)';
 
-  // Resource bar
   const rates = calcRates();
   let rhtml = '';
   for (const [r, rv] of Object.entries(RES)) {
@@ -640,7 +721,7 @@ function updateUI() {
     rhtml += `<div class="ri"><span class="ra" style="color:${rv.col}">${rv.abbr}</span><span class="rv">${fmt(a)}</span>${rs ? `<span class="rr ${rt < 0 ? 'neg' : ''}">${rs}</span>` : ''}</div>`;
   }
   document.getElementById('rbar').innerHTML = rhtml ||
-    '<span style="color:#1a2e40;font-size:10px;padding:0 10px">Build mines on deposits · Power plant needed for processing</span>';
+    '<span style="color:#4a6a8a;font-size:11px;padding:0 12px;font-weight:600">Build Extractors on glowing deposits to begin</span>';
 
   renderContent();
 }
@@ -668,14 +749,18 @@ function renderPalette(el) {
       const cost   = bldCost(id);
       const canA   = G.money >= cost;
       const active = placing === id;
-      const bc     = BCOL[id] || '#283848';
+      
+      let tags = '';
+      b.pro.forEach(p => tags += `<span class="bsub-tag">out: ${RES[p.r].abbr}</span>`);
+      if(b.pw) tags += `<span class="bsub-tag" style="color:${b.pw>0?'#38d850':'#f04c4c'}">${b.pw>0?'+':''}${b.pw}MW</span>`;
+
       h += `<div class="bcard ${active ? 'act' : ''} ${locked ? 'blk' : ''}" onclick="${locked ? '' : `startPlace('${id}')`}">
         <div class="btop">
-          <span class="bic" style="filter:drop-shadow(0 0 3px ${bc}88)">${b.ic}</span>
+          <span class="bic">${b.ic}</span>
           <span class="bn">${b.name}${locked ? ' 🔒' : ''}</span>
-          <span class="bcs" style="color:${locked ? '#283848' : canA ? '#d8a820' : '#583820'}">${locked ? 'Locked' : '$' + fmt(cost)}</span>
+          <span class="bcs" style="color:${locked ? '#4a6a8a' : canA ? '#f5d04c' : '#a04040'}">${locked ? 'Locked' : '$' + fmt(cost)}</span>
         </div>
-        <div class="bsub">${b.pro.map(p => `+${p.a} ${RES[p.r].abbr}`).join(' ')}${b.pw ? ` ${b.pw > 0 ? '+' : ''}${b.pw}MW` : ''}</div>
+        <div class="bsub">${tags}</div>
       </div>`;
     });
   }
@@ -686,21 +771,24 @@ function renderSelPanel(el, key, cell, bd) {
   const lv = cell.lv || 1;
   const { gen, con } = G.power;
   const active = bd.pw > 0 || gen >= con;
-  const uc     = Math.floor(bd.cost * lv * 2);
+  const uc     = Math.floor(bd.cost * lv * 2.5);
   el.innerHTML = `
     <div class="selhdr">
-      <span style="font-size:22px">${bd.ic}</span>
+      <span style="font-size:28px;filter:drop-shadow(0 0 10px rgba(255,255,255,0.2))">${bd.ic}</span>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#b0ccec">${bd.name}</div>
-        <div style="font-size:10px;color:#3870a0">Level ${lv} &nbsp;·&nbsp; <span style="color:${active ? '#38d050' : '#d03838'}">${active ? 'Working' : 'Idle — need power'}</span></div>
+        <div style="font-size:15px;font-weight:800;color:#e0eefc;letter-spacing:0.5px">${bd.name}</div>
+        <div style="font-size:11px;color:#7ca0c4;margin-top:4px;font-weight:600">Level ${lv} &nbsp;·&nbsp; <span style="color:${active ? '#38d850' : '#f04c4c'};text-shadow:0 0 5px currentColor">${active ? 'Working' : 'Idle — No Power'}</span></div>
       </div>
     </div>
-    <div class="sr"><span class="sl">Power</span><span style="color:${bd.pw < 0 ? '#f03838' : '#38d850'};font-family:monospace">${bd.pw > 0 ? '+' : ''}${bd.pw * lv} MW</span></div>
-    ${bd.pro.map(p => `<div class="sr"><span class="sl" style="color:#285828">Produces</span><span style="color:${RES[p.r].col};font-family:monospace">+${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
-    ${bd.con.map(p => `<div class="sr"><span class="sl" style="color:#582828">Consumes</span><span style="color:#b04848;font-family:monospace">−${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
-    <button class="abtn ubtn" onclick="upgBld('${key}')">⬆ Upgrade → Level ${lv + 1}<br><small style="opacity:.7">Cost: $${fmt(uc)}</small></button>
-    <button class="abtn dbtn" onclick="demBld('${key}')">↩ Demolish<small style="opacity:.6"> (50% refund)</small></button>
-    <button class="abtn" style="background:#0b1828;border-color:#142436;color:#385868;margin-top:6px" onclick="selKey=null;renderContent()">← Back to Build</button>`;
+    <div class="sr"><span class="sl">Power</span><span style="color:${bd.pw < 0 ? '#f04c4c' : '#38d850'};font-family:'JetBrains Mono',monospace">${bd.pw > 0 ? '+' : ''}${bd.pw * lv} MW</span></div>
+    ${bd.pro.map(p => `<div class="sr"><span class="sl" style="color:#50a050">Produces</span><span style="color:${RES[p.r].col};font-family:'JetBrains Mono',monospace">+${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
+    ${bd.con.map(p => `<div class="sr"><span class="sl" style="color:#a05050">Consumes</span><span style="color:#e06060;font-family:'JetBrains Mono',monospace">−${p.a * lv}/s ${RES[p.r].name}</span></div>`).join('')}
+    
+    <div style="margin-top:15px">
+      <button class="abtn ubtn" onclick="upgBld('${key}')">⬆ Upgrade to Lvl ${lv + 1}<br><span style="font-size:10px;font-family:'JetBrains Mono';opacity:.8">$${fmt(uc)}</span></button>
+      <button class="abtn dbtn" onclick="demBld('${key}')">↩ Demolish<br><span style="font-size:10px;opacity:.8">50% refund</span></button>
+      <button class="abtn" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);color:#8ca0b4;margin-top:15px" onclick="selKey=null;renderContent()">← Back</button>
+    </div>`;
 }
 
 function renderMarketPanel(el) {
@@ -708,7 +796,7 @@ function renderMarketPanel(el) {
   for (const [r, rv] of Object.entries(RES)) {
     const a = G.res[r] || 0;
     h += `<div class="mrow">
-      <div class="mdot" style="background:${rv.col}"></div>
+      <div class="mdot" style="background:${rv.col};box-shadow:0 0 6px ${rv.col}"></div>
       <span class="mn">${rv.name}</span>
       <span class="ma">${fmt(a)}</span>
       <span class="mp">$${rv.sell}/ea</span>
@@ -728,8 +816,8 @@ function renderResearchPanel(el) {
     h += `<div class="rcard ${done ? 'rdone' : ''} ${locked ? 'rlk' : ''}">
       <div class="rn">${rt.n}</div>
       <div class="rd">${rt.desc}</div>
-      ${done ? '<div style="color:#38c050;font-size:10px">✓ Researched</div>'
-             : `<button class="rbtn" ${locked || !canA ? 'disabled' : ''} onclick="doResearch('${rt.id}')">$${fmt(rt.cost)}</button>`}
+      ${done ? '<div style="color:#38d850;font-size:11px;font-weight:700">✓ Completed</div>'
+             : `<button class="rbtn" ${locked || !canA ? 'disabled' : ''} onclick="doResearch('${rt.id}')">Research - $${fmt(rt.cost)}</button>`}
     </div>`;
   });
   el.innerHTML = h;
@@ -738,17 +826,17 @@ function renderResearchPanel(el) {
 function renderLogPanel(el) {
   el.innerHTML = glog.length
     ? glog.map(l => `<div class="le">${l.msg}</div>`).join('')
-    : '<div class="le" style="color:#182830">No events yet. Start building!</div>';
+    : '<div class="le" style="color:#4a6a8a;border-left-color:transparent">No events yet. Start building!</div>';
 }
 
 // ═══════════════════════════════════════════════════════ ACTIONS
 function upgBld(key) {
   const c = G.grid[key]; if (!c) return;
-  const lv = c.lv || 1, cost = Math.floor(BLDGS[c.id].cost * lv * 2);
-  if (G.money < cost) { addLog(`⚠ Need $${fmt(cost)} to upgrade`); return; }
+  const lv = c.lv || 1, cost = Math.floor(BLDGS[c.id].cost * lv * 2.5);
+  if (G.money < cost) { addLog(`⚠️ Need $${fmt(cost)} to upgrade`); return; }
   G.grid[key] = { ...c, lv: lv + 1 };
   G.money -= cost;
-  addLog(`⬆ ${BLDGS[c.id].name} upgraded to Level ${lv + 1}`);
+  addLog(`⬆️ ${BLDGS[c.id].name} upgraded to Level ${lv + 1}`);
   updateUI();
 }
 function demBld(key) {
@@ -757,7 +845,7 @@ function demBld(key) {
   const paid = Math.floor(BLDGS[c.id].cost * Math.pow(1.15, cnt - 1));
   const ref  = Math.floor(paid * 0.5);
   delete G.grid[key]; G.money += ref; selKey = null;
-  addLog(`↩ Demolished ${BLDGS[c.id].name} — refunded $${fmt(ref)}`);
+  addLog(`↩️ Demolished ${BLDGS[c.id].name} — refunded $${fmt(ref)}`);
   updateUI();
 }
 function doSell(r) {
@@ -776,8 +864,8 @@ function sellAll() {
 }
 function doResearch(id) {
   const rt = RESEARCH.find(r => r.id === id); if (!rt) return;
-  if (G.money < rt.cost) { addLog(`⚠ Need $${fmt(rt.cost)}`); return; }
-  if (rt.req && rt.req.some(r => !G.research.includes(r))) { addLog('⚠ Prerequisites missing'); return; }
+  if (G.money < rt.cost) { addLog(`⚠️ Need $${fmt(rt.cost)}`); return; }
+  if (rt.req && rt.req.some(r => !G.research.includes(r))) { addLog('⚠️ Prerequisites missing'); return; }
   G.money -= rt.cost; G.research.push(id);
   addLog(`🔬 Researched: ${rt.n}`);
   updateUI();
@@ -786,16 +874,13 @@ function doResearch(id) {
 // ═══════════════════════════════════════════════════════ INIT
 window.addEventListener('resize', () => { resizeCanvas(); clampCam(); });
 resizeCanvas();
-// Start camera roughly centered on deposit-rich area
-cam.x = Math.max(0, (GCOLS * HW + HW) / 2 - canvas.width  / 2 - HW * 2);
-cam.y = Math.max(0, (GROWS * HHS + HR) / 2 - canvas.height / 2 - HHS);
+cam.x = Math.max(0, (2 * HW + HW) / 2 - canvas.width  / 2);
+cam.y = Math.max(0, (2 * HHS + HR) / 2 - canvas.height / 2);
 
 requestAnimationFrame(drawFrame);
 setInterval(gameTick, 1000);
 updateUI();
-addLog('Welcome to Industry Idle! Drag to pan the map.');
-addLog('Click a deposit (Fe/Si/Cu/Coal…) and build a mine from the Build panel.');
-addLog('Tip: Build a Power Plant first — processing buildings need power to run.');
+addLog('System initialized. Scroll wheel zoom enabled.');
 </script>
 </body>
 </html>
