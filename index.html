@@ -138,7 +138,7 @@ html,body{height:100%;background:#050a10;color:#a0b8cc;font-family:'Inter',syste
 const HR = 32;                           
 const HW = Math.sqrt(3) * HR;           
 const HHS = HR * 1.5;                   
-const GCOLS = 64, GROWS = 50;           
+const GCOLS = 120, GROWS = 90;           
 
 function hcen(col, row) {
   return {
@@ -206,14 +206,15 @@ const DEP = Object.create(null);
 const depTypes = ['fe','fe','si','cu','cu','coal','coal','al','ti','oil','oil','au','u'];
 function hash(x, y) { return Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453); }
 
+// Random deposits spread across the whole map
 for (let r = 0; r < GROWS; r++) {
   for (let c = 0; c < GCOLS; c++) {
     let h1 = hash(c, r);
-    let h2 = hash(Math.floor(c/5), Math.floor(r/5)); 
-    if (h2 - Math.floor(h2) > 0.65) {
-      if (h1 - Math.floor(h1) > 0.45) {
-        let distanceFactor = (c + r) / (GCOLS + GROWS); 
-        let availableTypes = Math.floor(5 + distanceFactor * (depTypes.length - 5)); 
+    let h2 = hash(Math.floor(c/5), Math.floor(r/5));
+    if (h2 - Math.floor(h2) > 0.60) {
+      if (h1 - Math.floor(h1) > 0.40) {
+        let distanceFactor = (c + r) / (GCOLS + GROWS);
+        let availableTypes = Math.floor(4 + distanceFactor * (depTypes.length - 4));
         availableTypes = Math.min(availableTypes, depTypes.length);
         let typeIdx = Math.floor((h2 * 100) % availableTypes);
         DEP[`${c},${r}`] = depTypes[typeIdx];
@@ -221,8 +222,86 @@ for (let r = 0; r < GROWS; r++) {
     }
   }
 }
-const startClusters = { "2,2":"fe","3,2":"coal","2,3":"cu","4,3":"si","3,4":"fe","2,4":"coal" };
-Object.assign(DEP, startClusters);
+
+// ── Guaranteed clusters for every resource type ────────────────────────────
+// Helper: paint a small cluster of deposits
+function plantCluster(cx, cy, type, count, radius) {
+  const offsets = [
+    [0,0],[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1],[2,0],[-2,0],[0,2],[0,-2],
+    [1,1],[-1,-1],[2,1],[-2,-1],[1,-2],[-1,2],[2,-1],[-2,1]
+  ];
+  let placed = 0;
+  for (const [dc, dr] of offsets) {
+    if (placed >= count) break;
+    const nc = cx + dc, nr = cy + dr;
+    if (nc >= 0 && nc < GCOLS && nr >= 0 && nr < GROWS) {
+      DEP[`${nc},${nr}`] = type;
+      placed++;
+    }
+  }
+}
+
+// Starter zone — iron, coal, copper, silicon near origin (for new players)
+plantCluster(2,  2,  'fe',   5, 2);
+plantCluster(5,  2,  'coal', 5, 2);
+plantCluster(2,  5,  'cu',   5, 2);
+plantCluster(5,  5,  'si',   5, 2);
+
+// Mid-map deposits
+plantCluster(20, 10, 'fe',   6, 2);
+plantCluster(30, 12, 'cu',   6, 2);
+plantCluster(25, 20, 'coal', 6, 2);
+plantCluster(40, 8,  'si',   5, 2);
+plantCluster(15, 30, 'al',   5, 2);
+plantCluster(50, 15, 'al',   5, 2);
+plantCluster(35, 30, 'fe',   5, 2);
+plantCluster(55, 25, 'cu',   5, 2);
+plantCluster(45, 35, 'coal', 5, 2);
+
+// Aluminum — multiple clusters across map
+plantCluster(60, 10, 'al',   6, 2);
+plantCluster(80, 20, 'al',   6, 2);
+plantCluster(30, 55, 'al',   5, 2);
+plantCluster(100,40, 'al',   5, 2);
+
+// Titanium — spread mid-to-far
+plantCluster(65, 20, 'ti',   6, 2);
+plantCluster(40, 45, 'ti',   5, 2);
+plantCluster(85, 35, 'ti',   5, 2);
+plantCluster(110,50, 'ti',   5, 2);
+plantCluster(20, 70, 'ti',   4, 2);
+
+// Crude Oil — spread across map
+plantCluster(70, 30, 'oil',  6, 2);
+plantCluster(50, 50, 'oil',  6, 2);
+plantCluster(90, 45, 'oil',  6, 2);
+plantCluster(110,25, 'oil',  5, 2);
+plantCluster(35, 75, 'oil',  5, 2);
+plantCluster(75, 70, 'oil',  5, 2);
+
+// Gold — rarer, spread far
+plantCluster(80, 40, 'au',   5, 2);
+plantCluster(100,55, 'au',   5, 2);
+plantCluster(55, 65, 'au',   4, 2);
+plantCluster(115,35, 'au',   4, 2);
+plantCluster(25, 80, 'au',   4, 2);
+plantCluster(90, 80, 'au',   4, 2);
+
+// Uranium — rarest, far corners and edges
+plantCluster(95, 60, 'u',    4, 1);
+plantCluster(110,70, 'u',    4, 1);
+plantCluster(60, 80, 'u',    4, 1);
+plantCluster(115,80, 'u',    4, 1);
+plantCluster(40, 82, 'u',    3, 1);
+plantCluster(105,15, 'u',    3, 1);
+
+// Extra iron/coal/si/cu scattered in the middle and far zones
+plantCluster(70, 55, 'fe',   5, 2);
+plantCluster(95, 30, 'coal', 5, 2);
+plantCluster(85, 65, 'si',   5, 2);
+plantCluster(110,60, 'cu',   5, 2);
+plantCluster(55, 40, 'fe',   5, 2);
+plantCluster(75, 45, 'si',   4, 2);
 
 const BCOL = {
   fe_mine:'#6a4030', si_mine:'#2848a0', cu_mine:'#904820', coal_mine:'#424242',
@@ -847,8 +926,10 @@ function doResearch(id) {
 window.addEventListener('resize', () => { resizeCanvas(); clampCam(); });
 resizeCanvas();
 loadGame(); // Load on start
-cam.x = (2 * HW + HW) / 2 - canvas.width  / 2;
-cam.y = (2 * HHS + HR) / 2 - canvas.height / 2;
+// Start camera centered on the starter deposit zone (around col 5, row 5)
+const _startHex = HC['5,4'] || { x: 5 * HW, y: 4 * HHS };
+cam.x = _startHex.x - canvas.width  / (2 * cam.z);
+cam.y = _startHex.y - canvas.height / (2 * cam.z);
 
 requestAnimationFrame(drawFrame);
 setInterval(gameTick, 1000);
